@@ -7,11 +7,12 @@
 - [ ] 为cmake添加各项环境检查
 - [ ] README里添加更新日志
 - [ ] 添加注释
-- [ ] 添加perf火焰图生成脚本
 - [ ] 测试clang编译器
+- [ ] 为benchtests添加threadpool版本
 
 ### 已完成
 
+- [x] 添加perf火焰图生成脚本
 - [x] 更改所有同步组件register和resume的方式
 - [x] 添加负载均衡模块使得任务支持跨线程
 - [x] 解决context stop过慢的问题
@@ -19,6 +20,7 @@
 - [x] 更改context的stop为notify_stop，并修改测试用例
 - [x] 测试数值改为配置项
 - [x] 添加版本号信息
+- [x] 为benchtests添加threadpool版本
 
 ### 未来待完成
 
@@ -33,8 +35,6 @@
 - [ ] 为uring添加polling模式
 - [ ] 修复高QPS下部分响应失败
 - [ ] 修复内存invalid read的问题
-- [ ] 添加github CI和githooks
-- [ ] 为benchtests添加threadpool版本
 
 ## 后续实验
 
