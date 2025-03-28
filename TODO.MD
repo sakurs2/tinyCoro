@@ -2,13 +2,13 @@
 
 ### 正在解决中
 
-- [ ] benchmark结果统计
+- [ ] 修复高QPS下部分响应失败
+- [ ] 修复内存invalid read的问题，该问题导致memtest不通过
 - [ ] perf火焰图性能优化
 - [ ] 为cmake添加各项环境检查
 - [ ] README里添加更新日志
-- [ ] 添加注释
+- [ ] 添加更详细的注释
 - [ ] 测试clang编译器
-- [ ] 为benchtests添加threadpool版本
 
 ### 已完成
 
@@ -33,8 +33,6 @@
 - [ ] 动态链接库接口可见性
 - [ ] 添加co_yield功能
 - [ ] 为uring添加polling模式
-- [ ] 修复高QPS下部分响应失败
-- [ ] 修复内存invalid read的问题
 
 ## 后续实验
 
