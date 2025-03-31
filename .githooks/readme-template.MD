@@ -217,7 +217,7 @@ git clone https://github.com/sakurs2/tinyCoro
 
 ```shell
 cd tinyCoro
- git submodule update --init --recursive
+git submodule update --init --recursive
 ```
 
 构建liburing
