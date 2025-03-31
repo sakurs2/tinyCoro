@@ -55,7 +55,7 @@ example_contents=$(cat 'examples/when_all.cpp')
 echo "${template_contents/\$\{EXAMPLE_CORO_WHEN_ALL\}/$example_contents}" > README.md
 
 template_contents=$(cat 'README.md')
-example_contents=$(cat 'examples/condition_variable.cpp')
+example_contents=$(cat 'examples/cv_notify_one.cpp')
 echo "${template_contents/\$\{EXAMPLE_CORO_CONDITION_VARIABLE\}/$example_contents}" > README.md
 
 template_contents=$(cat 'README.md')
