@@ -1,10 +1,10 @@
 liburing version:2.10
 
 wsl2: 
-²Ù×÷ÏµÍ³°æ±¾£ºUbuntu 22.04.5 LTS
-ÄÚºË°æ±¾£º5.15.167.4-microsoft-standard-WSL2
-ÏµÍ³ÏêÏ¸ĞÅÏ¢£ºLinux DESKTOP-59OORP1 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
-cpuĞÅÏ¢£º
+æ“ä½œç³»ç»Ÿç‰ˆæœ¬ï¼šUbuntu 22.04.5 LTS
+å†…æ ¸ç‰ˆæœ¬ï¼š5.15.167.4-microsoft-standard-WSL2
+ç³»ç»Ÿè¯¦ç»†ä¿¡æ¯ï¼šLinux DESKTOP-59OORP1 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
+cpuä¿¡æ¯ï¼š
         Architecture:           x86_64
         CPU op-mode(s):         32-bit, 64-bit
         Address sizes:          48 bits physical, 48 bits virtual
@@ -24,13 +24,13 @@ cpuĞÅÏ¢£º
         L1i:                    256 KiB (8 instances)
         L2:                     8 MiB (8 instances)
         L3:                     16 MiB (1 instance)
-ÄÚ´æ´óĞ¡£º7.4Gi
+å†…å­˜å¤§å°ï¼š7.4Gi
 
 ubuntu:
-²Ù×÷ÏµÍ³°æ±¾£ºUbuntu 24.04.2 LTS
-ÄÚºË°æ±¾£º6.8.0-55-generic
-ÏµÍ³ÏêÏ¸ĞÅÏ¢£ºLinux ubuntu 6.8.0-55-generic #57-Ubuntu SMP PREEMPT_DYNAMIC Wed Feb 12 23:42:21 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux
-cpuĞÅÏ¢£º
+æ“ä½œç³»ç»Ÿç‰ˆæœ¬ï¼šUbuntu 24.04.2 LTS
+å†…æ ¸ç‰ˆæœ¬ï¼š6.8.0-55-generic
+ç³»ç»Ÿè¯¦ç»†ä¿¡æ¯ï¼šLinux ubuntu 6.8.0-55-generic #57-Ubuntu SMP PREEMPT_DYNAMIC Wed Feb 12 23:42:21 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux
+cpuä¿¡æ¯ï¼š
         Architecture:           x86_64
         CPU op-mode(s):         32-bit, 64-bit
         Address sizes:          39 bits physical, 48 bits virtual
@@ -50,7 +50,7 @@ cpuĞÅÏ¢£º
         L1i:                    192 KiB (6 instances)
         L2:                     7.5 MiB (6 instances)
         L3:                     18 MiB (1 instance)
-ÄÚ´æ´óĞ¡£º31Gi
+å†…å­˜å¤§å°ï¼š31Gi
 
 
 128b-avg(req/s)
