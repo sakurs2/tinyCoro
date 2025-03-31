@@ -8,7 +8,9 @@ using std::memory_order_relaxed;
 
 auto engine::init() noexcept -> void
 {
-    linfo.egn = this;
+    linfo.egn            = this;
+    m_num_io_wait_submit = 0;
+    m_num_io_running     = 0;
     m_upxy.init(config::kEntryLength);
 }
 
@@ -16,6 +18,7 @@ auto engine::deinit() noexcept -> void
 {
     m_upxy.deinit();
     m_num_io_wait_submit = 0;
+    m_num_io_running     = 0;
     mpmc_queue<coroutine_handle<>> task_queue;
     m_task_queue.swap(task_queue);
 }
