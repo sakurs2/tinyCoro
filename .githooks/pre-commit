@@ -30,44 +30,44 @@ should_clang_format() {
 #     fi
 # done
 
-# Update the README.md example code with the given macros.
-template_contents=$(cat '.githooks/readme-template.md')
-cp .githooks/readme-template.md README.md
+# Update the README.MD example code with the given macros.
+template_contents=$(cat '.githooks/readme-template.MD')
+cp .githooks/readme-template.MD README.MD
 
-template_contents=$(cat 'README.md')
+template_contents=$(cat 'README.MD')
 example_contents=$(cat 'examples/event.cpp')
-echo "${template_contents/\$\{EXAMPLE_CORO_EVENT\}/$example_contents}" > README.md
+echo "${template_contents/\$\{EXAMPLE_CORO_EVENT\}/$example_contents}" > README.MD
 
-template_contents=$(cat 'README.md')
+template_contents=$(cat 'README.MD')
 example_contents=$(cat 'examples/latch.cpp')
-echo "${template_contents/\$\{EXAMPLE_CORO_LATCH\}/$example_contents}" > README.md
+echo "${template_contents/\$\{EXAMPLE_CORO_LATCH\}/$example_contents}" > README.MD
 
-template_contents=$(cat 'README.md')
+template_contents=$(cat 'README.MD')
 example_contents=$(cat 'examples/wait_group.cpp')
-echo "${template_contents/\$\{EXAMPLE_CORO_WAIT_GROUP\}/$example_contents}" > README.md
+echo "${template_contents/\$\{EXAMPLE_CORO_WAIT_GROUP\}/$example_contents}" > README.MD
 
-template_contents=$(cat 'README.md')
+template_contents=$(cat 'README.MD')
 example_contents=$(cat 'examples/mutex.cpp')
-echo "${template_contents/\$\{EXAMPLE_CORO_MUTEX\}/$example_contents}" > README.md
+echo "${template_contents/\$\{EXAMPLE_CORO_MUTEX\}/$example_contents}" > README.MD
 
-template_contents=$(cat 'README.md')
+template_contents=$(cat 'README.MD')
 example_contents=$(cat 'examples/when_all.cpp')
-echo "${template_contents/\$\{EXAMPLE_CORO_WHEN_ALL\}/$example_contents}" > README.md
+echo "${template_contents/\$\{EXAMPLE_CORO_WHEN_ALL\}/$example_contents}" > README.MD
 
-template_contents=$(cat 'README.md')
+template_contents=$(cat 'README.MD')
 example_contents=$(cat 'examples/cv_notify_one.cpp')
-echo "${template_contents/\$\{EXAMPLE_CORO_CONDITION_VARIABLE\}/$example_contents}" > README.md
+echo "${template_contents/\$\{EXAMPLE_CORO_CONDITION_VARIABLE\}/$example_contents}" > README.MD
 
-template_contents=$(cat 'README.md')
+template_contents=$(cat 'README.MD')
 example_contents=$(cat 'examples/channel.cpp')
-echo "${template_contents/\$\{EXAMPLE_CORO_CHANNEL\}/$example_contents}" > README.md
+echo "${template_contents/\$\{EXAMPLE_CORO_CHANNEL\}/$example_contents}" > README.MD
 
-template_contents=$(cat 'README.md')
+template_contents=$(cat 'README.MD')
 example_contents=$(cat 'examples/stdin_client.cpp')
-echo "${template_contents/\$\{EXAMPLE_CORO_TCP_STDIN_CLIENT\}/$example_contents}" > README.md
+echo "${template_contents/\$\{EXAMPLE_CORO_TCP_STDIN_CLIENT\}/$example_contents}" > README.MD
 
-template_contents=$(cat 'README.md')
+template_contents=$(cat 'README.MD')
 example_contents=$(cat 'examples/tcp_echo_server.cpp')
-echo "${template_contents/\$\{EXAMPLE_CORO_TCP_ECHO_SERVER\}/$example_contents}" > README.md
+echo "${template_contents/\$\{EXAMPLE_CORO_TCP_ECHO_SERVER\}/$example_contents}" > README.MD
 
-git add README.md
+git add README.MD
