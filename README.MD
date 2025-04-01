@@ -28,9 +28,7 @@ tinyCoro的设计并不复杂，每个执行引擎拥有一个工作线程和io_
 
 为了使更多的同学了解C++协程和liburing，tinyCoro作者参照cmu15445 bustub研发了[tinyCoroLab](https://github.com/sakurs2/tinyCoroLab)课程，5大实验搭配精心编写的功能、内存安全以及性能测试，并配备内容丰富的实验文档，助力实验者对C++编程、异步编程和多线程编程技术更上一层楼！
 
-TODO:添加文档部分
-
-tinyCoroLab实验课程完全免费！！！快点击[tinyCoroLab](https://github.com/sakurs2/tinyCoroLab)开启属于你的tinyCoro之旅吧！
+tinyCoroLab实验课程免费！！！快点击[tinyCoroLab](https://github.com/sakurs2/tinyCoroLab)以及在线文档[tinycorolab-docs](https://sakurs2.gitbook.io/tinycorolab-docs/)开启属于你的tinyCoro之旅吧！
 
 ## Overview
 
