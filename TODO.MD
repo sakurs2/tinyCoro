@@ -2,6 +2,7 @@
 
 ### 正在解决中
 
+- [ ] 去除运行模式概念，scheduler::loop不需要参数
 - [ ] 修复高QPS下部分响应失败
 - [ ] 修复内存invalid read的问题，该问题导致memtest不通过
 - [ ] 解决io_uring sqe消费过快问题
