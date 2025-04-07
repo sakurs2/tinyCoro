@@ -6,11 +6,8 @@
 - [ ] 修复高QPS下部分响应失败
 - [ ] 修复内存invalid read的问题，该问题导致memtest不通过
 - [ ] 解决io_uring sqe消费过快问题
-- [ ] perf火焰图性能优化
-- [ ] 为cmake添加各项环境检查
-- [ ] README里添加更新日志
-- [ ] 添加更详细的注释
-- [ ] 测试clang编译器
+- [ ] 添加io_uring链式调用的功能
+- [ ] 为uring添加polling模式
 
 ### 已完成
 
@@ -34,4 +31,8 @@
 - [ ] 为awaiter添加基类
 - [ ] 动态链接库接口可见性
 - [ ] 添加co_yield功能
-- [ ] 为uring添加polling模式
+- [ ] perf火焰图性能优化
+- [ ] 为cmake添加各项环境检查
+- [ ] README里添加更新日志
+- [ ] 添加更详细的注释
+- [ ] 测试clang编译器
