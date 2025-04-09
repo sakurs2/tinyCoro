@@ -127,6 +127,5 @@ void mutex_bench(const int loop_num)
         submit_to_scheduler(add(mtx, loop_num));
     }
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 }

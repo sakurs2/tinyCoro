@@ -94,8 +94,7 @@ TEST_P(EventTest, SetAndWait)
 
     submit_to_scheduler(set_func(m_ev, m_id, &m_set));
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 
     std::sort(m_wait_vec.begin(), m_wait_vec.end());
     ASSERT_EQ(m_set, 1);
@@ -136,8 +135,7 @@ TEST_P(EventValueTest, SetValueAndWait)
 
     submit_to_scheduler(set_value_func(m_ev, randnum));
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 
     std::sort(m_wait_vec.begin(), m_wait_vec.end());
 

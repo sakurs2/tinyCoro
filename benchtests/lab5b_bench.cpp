@@ -192,8 +192,7 @@ void cv_notifyall_bench(const int loop_num)
         submit_to_scheduler(notify_all(cv, mtx, gid, i, loop_num));
     }
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 }
 
 template<typename cv_type, typename mtx_type>
@@ -211,6 +210,5 @@ void cv_notifyone_bench()
         submit_to_scheduler(notify_one(cv, mtx, gid, i, notifyone_run_cnt));
     }
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 }

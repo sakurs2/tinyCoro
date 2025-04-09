@@ -32,8 +32,6 @@ int main(int argc, char const* argv[])
         submit_to_scheduler(set_task(i));
     }
 
-    scheduler::start();
-
-    scheduler::loop(false);
+    scheduler::loop();
     return 0;
 }

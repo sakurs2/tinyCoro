@@ -167,8 +167,7 @@ TEST_F(WhenallTest, WhenallWaitTaskCnt1)
 
     submit_to_scheduler(waiter_cnt1(m_waitee_vec, m_waiter_id, m_id));
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 
     ASSERT_EQ(m_id, wait_num + 1);
     ASSERT_EQ(m_waiter_id, m_id - 1);
@@ -189,8 +188,7 @@ TEST_F(WhenallTest, WhenallWaitTaskCnt4)
 
     submit_to_scheduler(waiter_cnt4(m_waitee_vec, m_waiter_id, m_id));
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 
     ASSERT_EQ(m_id, wait_num + 1);
     ASSERT_EQ(m_waiter_id, m_id - 1);
@@ -211,8 +209,7 @@ TEST_F(WhenallTest, WhenallWaitTaskCnt10)
 
     submit_to_scheduler(waiter_cnt10(m_waitee_vec, m_waiter_id, m_id));
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 
     ASSERT_EQ(m_id, wait_num + 1);
     ASSERT_EQ(m_waiter_id, m_id - 1);
@@ -232,8 +229,7 @@ TEST_F(WhenallTest, WhenallValueWaitTaskCnt4)
 
     submit_to_scheduler(waiter_value_cnt4(m_waitee_vec));
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 
     ASSERT_EQ(m_waitee_vec.size(), wait_num);
     std::sort(m_waitee_vec.begin(), m_waitee_vec.end());
@@ -251,8 +247,7 @@ TEST_F(WhenallTest, WhenallValueWaitTaskCnt10)
 
     submit_to_scheduler(waiter_value_cnt10(m_waitee_vec));
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 
     ASSERT_EQ(m_waitee_vec.size(), wait_num);
     std::sort(m_waitee_vec.begin(), m_waitee_vec.end());
@@ -271,8 +266,7 @@ TEST_P(WhenallNestCallTest, WhenallNestCall)
 
     submit_to_scheduler(waiter_nest_call(m_mark, 1, 1, depth));
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 
     for (int i = 1; i <= total_num; i++)
     {
@@ -293,8 +287,7 @@ TEST_P(WhenallHybridMutexTest, WhenallHybridMutex)
         submit_to_scheduler(whenall_hybrid_mutex(m_mtx, m_vec, i));
     }
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 
     ASSERT_EQ(m_vec.size(), task_num);
     std::sort(m_vec.begin(), m_vec.end());

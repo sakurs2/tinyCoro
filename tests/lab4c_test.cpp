@@ -70,9 +70,7 @@ TEST_P(WaitgroupTest, DoneAndWait)
         submit_to_scheduler(done_func(m_wg, m_id, &(m_done_vec[i])));
     }
 
-    scheduler::start();
-
-    scheduler::loop(false);
+    scheduler::loop();
 
     std::sort(m_done_vec.begin(), m_done_vec.end());
     std::sort(m_wait_vec.begin(), m_wait_vec.end());

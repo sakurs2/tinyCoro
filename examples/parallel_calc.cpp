@@ -29,8 +29,6 @@ int main(int argc, char const* argv[])
         submit_to_scheduler(calc(i, i * 3, (i + 1) * 3, vec));
     }
 
-    scheduler::start();
-
-    scheduler::loop(false);
+    scheduler::loop();
     return 0;
 }

@@ -38,7 +38,6 @@ int main(int argc, char const* argv[])
     scheduler::init();
 
     submit_to_scheduler(server(8000));
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
     return 0;
 }

@@ -39,4 +39,11 @@ struct global_info
 
 inline thread_local local_info linfo;
 inline global_info             ginfo;
+
+// init global info
+inline auto init_meta_info() noexcept -> void
+{
+    ginfo.context_id = 0;
+    ginfo.engine_id  = 0;
+}
 }; // namespace coro::detail

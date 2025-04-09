@@ -243,8 +243,7 @@ void channel_bench(const int loop_num)
         submit_to_scheduler(channel_producer(cv, mtx, que, loop_num * capacity));
         submit_to_scheduler(channel_consumer(cv, mtx, que, loop_num * capacity));
 
-        scheduler::start();
-        scheduler::loop(false);
+        scheduler::loop();
     }
     else
     {
@@ -252,7 +251,6 @@ void channel_bench(const int loop_num)
         submit_to_scheduler(channel_producer(ch, loop_num * capacity));
         submit_to_scheduler(channel_consumer(ch));
 
-        scheduler::start();
-        scheduler::loop(false);
+        scheduler::loop();
     }
 }

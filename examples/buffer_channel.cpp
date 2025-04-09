@@ -2,7 +2,8 @@
 
 using namespace coro;
 
-channel<int, 5> ch;
+channel<int, 5>  ch;
+std::atomic<int> number;
 
 task<> producer(int id)
 {
@@ -12,6 +13,10 @@ task<> producer(int id)
         log::info("producer {} send once", id);
     }
 
+    if (number.fetch_sub(1, std::memory_order_acq_rel) == 1)
+    {
+        ch.close();
+    }
     co_return;
 }
 
@@ -37,16 +42,12 @@ int main(int argc, char const* argv[])
     /* code */
     scheduler::init();
 
+    number = 2;
     submit_to_scheduler(producer(0));
     submit_to_scheduler(producer(1));
     submit_to_scheduler(consumer(2));
     submit_to_scheduler(consumer(3));
 
-    scheduler::start();
-
-    utils::sleep(1);
-    ch.close();
-
-    scheduler::loop(false);
+    scheduler::loop();
     return 0;
 }

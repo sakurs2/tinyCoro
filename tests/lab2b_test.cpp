@@ -51,6 +51,10 @@ class ContextAddNopIOTest : public ContextRunTaskTest
 {
 };
 
+class SchedulerSubmitTest : public ContextRunTaskTest
+{
+};
+
 class SchedulerRunTaskTest : public ::testing::TestWithParam<int>
 {
 protected:
@@ -93,6 +97,17 @@ task<> mutex_func_nop(std::vector<int>& vec, int val, std::mutex& mtx)
     mtx.lock();
     vec.push_back(val);
     mtx.unlock();
+    co_return;
+}
+
+task<> submit_scheduler_func(std::vector<int>& vec, int id)
+{
+    if (id == 0)
+    {
+        co_return;
+    }
+    vec.push_back(id);
+    submit_to_scheduler(submit_scheduler_func(vec, id - 1));
     co_return;
 }
 
@@ -157,7 +172,7 @@ TEST_P(ContextRunTaskTest, RunTask)
     }
 
     m_ctx.start();
-    m_ctx.notify_stop();
+    // m_ctx.notify_stop();
     m_ctx.join();
 
     ASSERT_EQ(m_vec.size(), task_num);
@@ -185,7 +200,7 @@ TEST_P(ContextMultiThreadAddTaskTest, MultiThreadAddTask)
     }
 
     m_ctx.start();
-    m_ctx.notify_stop();
+    // m_ctx.notify_stop();
     m_ctx.join();
 
     ASSERT_EQ(m_vec.size(), thread_num);
@@ -209,7 +224,7 @@ TEST_P(ContextAddNopIOTest, AddNopIO)
     }
 
     m_ctx.start();
-    m_ctx.notify_stop();
+    // m_ctx.notify_stop();
     m_ctx.join();
 
     ASSERT_EQ(m_vec.size(), task_num);
@@ -232,9 +247,7 @@ TEST_P(SchedulerRunTaskTest, RunTask)
         submit_to_scheduler(mutex_func(m_vec, i, m_mtx));
     }
 
-    scheduler::start();
-
-    scheduler::loop(false);
+    scheduler::loop();
 
     ASSERT_EQ(m_vec.size(), task_num);
     std::sort(m_vec.begin(), m_vec.end());
@@ -246,6 +259,25 @@ TEST_P(SchedulerRunTaskTest, RunTask)
 
 INSTANTIATE_TEST_SUITE_P(SchedulerRunTaskTests, SchedulerRunTaskTest, ::testing::Values(1, 10, 100, 10000));
 
+TEST_P(SchedulerSubmitTest, SubmitToScheduler)
+{
+    const int task_num = GetParam();
+    scheduler::init();
+
+    submit_to_scheduler(submit_scheduler_func(m_vec, task_num));
+
+    scheduler::loop();
+
+    ASSERT_EQ(m_vec.size(), task_num);
+    std::sort(m_vec.begin(), m_vec.end());
+    for (int i = 0; i < task_num; i++)
+    {
+        ASSERT_EQ(m_vec[i], i + 1);
+    }
+}
+
+INSTANTIATE_TEST_SUITE_P(SchedulerSubmitTests, SchedulerSubmitTest, ::testing::Values(1, 10, 100, 10000));
+
 TEST_P(SchedulerAddNopIOTest, AddNopIO)
 {
     const int task_num = GetParam();
@@ -256,9 +288,7 @@ TEST_P(SchedulerAddNopIOTest, AddNopIO)
         submit_to_scheduler(mutex_func_nop(m_vec, i, m_mtx));
     }
 
-    scheduler::start();
-
-    scheduler::loop(false);
+    scheduler::loop();
 
     ASSERT_EQ(m_vec.size(), task_num);
     std::sort(m_vec.begin(), m_vec.end());

@@ -14,6 +14,10 @@ auto context::start() noexcept -> void
         [this](stop_token token)
         {
             this->init();
+            if (!(this->m_stop_cb))
+            {
+                m_stop_cb = [&]() { m_job->request_stop(); };
+            }
             this->run(token);
             this->deinit();
         });
@@ -23,6 +27,11 @@ auto context::notify_stop() noexcept -> void
 {
     m_job->request_stop();
     m_engine.wake_up();
+}
+
+auto context::set_stop_cb(stop_cb cb) noexcept -> void
+{
+    m_stop_cb = cb;
 }
 
 auto context::init() noexcept -> void
@@ -39,25 +48,37 @@ auto context::deinit() noexcept -> void
 
 auto context::run(stop_token token) noexcept -> void
 {
-    while (true)
+    while (!token.stop_requested())
     {
         process_work();
-        if (token.stop_requested() && empty_wait_task())
+        // if (token.stop_requested() && empty_wait_task())
+        // {
+        //     if (!m_engine.ready())
+        //     {
+        //         break;
+        //     }
+        //     else
+        //     {
+        //         continue;
+        //     }
+        // }
+        if (empty_wait_task())
         {
             if (!m_engine.ready())
             {
-                break;
+                m_stop_cb();
             }
             else
             {
                 continue;
             }
         }
+
         poll_work();
-        if (token.stop_requested() && empty_wait_task() && !m_engine.ready())
-        {
-            break;
-        }
+        // if (token.stop_requested() && empty_wait_task() && !m_engine.ready())
+        // {
+        //     break;
+        // }
     }
 }
 

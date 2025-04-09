@@ -39,8 +39,6 @@ int main(int argc, char const* argv[])
     submit_to_scheduler(producer(0));
     submit_to_scheduler(consumer(1));
 
-    scheduler::start();
-
-    scheduler::loop(false);
+    scheduler::loop();
     return 0;
 }

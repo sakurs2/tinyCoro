@@ -28,9 +28,7 @@ int main(int argc, char const* argv[])
         submit_to_scheduler(add_task(i));
     }
 
-    scheduler::start();
-
-    scheduler::loop(false);
+    scheduler::loop();
     assert(data == 1000000);
     return 0;
 }

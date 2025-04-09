@@ -2,7 +2,7 @@
  * @file channel.hpp
  * @author JiahuiWang
  * @brief lab5c
- * @version 0.1
+ * @version 1.1
  * @date 2025-03-24
  *
  * @copyright Copyright (c) 2025

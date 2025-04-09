@@ -54,7 +54,6 @@ int main(int argc, char const* argv[])
     }
 
     submit_to_scheduler(server(port));
-    scheduler::start();
-    scheduler::loop(true);
+    scheduler::loop();
     return 0;
 }

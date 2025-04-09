@@ -154,8 +154,7 @@ TEST_P(ConditionVarNotifyOneTest, ConditionVarNotifyOne)
     submit_to_scheduler(notify_one(m_para, 0, loop_num));
     submit_to_scheduler(notify_one(m_para, 1, loop_num));
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 
     ASSERT_EQ(m_para.vec.size(), 2 * loop_num);
     for (int i = 0; i < 2 * loop_num; i++)
@@ -176,8 +175,7 @@ TEST_P(ConditionVarNotifyAllTest, ConditionVarNotifyAll)
         submit_to_scheduler(notify_all(m_para, i));
     }
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 
     ASSERT_EQ(m_para.vec.size(), task_num);
     for (int i = 0; i < task_num; i++)
@@ -209,8 +207,7 @@ TEST_P(ConditionVarProducerConsumerTest, ConditionVarProducerConsumer)
         submit_to_scheduler(consumer(m_para));
     }
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 
     ASSERT_EQ(m_para.vec.size(), num_per_producer * producer_num);
     for (int i = 0; i < num_per_producer * producer_num; i++)

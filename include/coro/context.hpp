@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <functional>
 #include <memory>
 #include <thread>
 
@@ -35,6 +36,8 @@ class scheduler;
  */
 class context
 {
+    using stop_cb = std::function<void()>;
+
 public:
     context() noexcept;
     ~context() noexcept                = default;
@@ -47,7 +50,7 @@ public:
      * @brief work thread start running
      *
      */
-    auto start() noexcept -> void;
+    [[CORO_TEST_USED(lab2b)]] auto start() noexcept -> void;
 
     /**
      * @brief send stop signal to work thread
@@ -60,6 +63,13 @@ public:
      *
      */
     inline auto join() noexcept -> void { m_job->join(); }
+
+    /**
+     * @brief Set the stop cb object
+     *
+     * @param cb
+     */
+    auto set_stop_cb(stop_cb cb) noexcept -> void;
 
     inline auto submit_task(task<void>&& task) noexcept -> void
     {
@@ -140,6 +150,7 @@ private:
     unique_ptr<jthread> m_job;
     ctx_id              m_id;
     atomic<size_t>      m_num_wait_task{0};
+    stop_cb             m_stop_cb;
 };
 
 inline context& local_context() noexcept

@@ -2,7 +2,7 @@
  * @file config.h.in
  * @author JiahuiWang
  * @brief configuation file of tinycoro
- * @version 0.1
+ * @version 1.1
  * @date 2025-03-23
  *
  * @copyright Copyright (c) 2025
@@ -71,6 +71,8 @@ constexpr size_t kQueCap = 16384;
 constexpr coro::detail::dispatch_strategy kDispatchStrategy = coro::detail::dispatch_strategy::round_robin;
 
 /**
+ * @warning kLongRunMode is deprecated
+ *
  * @brief there are two modes: long run mode and short run mode,
  * set kLongRunMode true to open long run mode.
  *

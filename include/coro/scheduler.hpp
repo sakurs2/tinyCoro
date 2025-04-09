@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "config.h"
+#include "coro/detail/atomic_helper.hpp"
 #include "coro/dispatcher.hpp"
 
 namespace coro
@@ -19,6 +20,8 @@ namespace coro
 class scheduler
 {
     friend context;
+    using stop_token_type = std::atomic<int>;
+    using stop_flag_type  = std::vector<detail::atomic_ref_wrapper<int>>;
 
 public:
     inline static auto init(size_t ctx_cnt = std::thread::hardware_concurrency()) noexcept -> void
@@ -31,21 +34,10 @@ public:
     }
 
     /**
-     * @brief start all context
+     * @brief loop work, auto wait all context finish job
      *
      */
-    inline static auto start() noexcept -> void { get_instance()->start_impl(); }
-
-    /**
-     * @brief if long_run_mode is true, scheduler will never let context stop,
-     * otherwise scheduler will send stop signal first to context
-     *
-     * @param long_run_mode
-     */
-    inline static auto loop(bool long_run_mode = config::kLongRunMode) noexcept -> void
-    {
-        get_instance()->loop_impl(long_run_mode);
-    }
+    inline static auto loop() noexcept -> void { get_instance()->loop_impl(); }
 
     static inline auto submit(task<void>&& task) noexcept -> void
     {
@@ -72,11 +64,9 @@ private:
 
     auto start_impl() noexcept -> void;
 
-    auto loop_impl(bool long_run_mode) noexcept -> void;
+    auto loop_impl() noexcept -> void;
 
     auto stop_impl() noexcept -> void;
-
-    auto join_impl() noexcept -> void;
 
     auto submit_task_impl(std::coroutine_handle<> handle) noexcept -> void;
 
@@ -84,42 +74,23 @@ private:
     size_t                                              m_ctx_cnt{0};
     detail::ctx_container                               m_ctxs;
     detail::dispatcher<coro::config::kDispatchStrategy> m_dispatcher;
+    stop_flag_type                                      m_ctx_stop_flag;
+    stop_token_type                                     m_stop_token;
 };
 
 inline void submit_to_scheduler(task<void>&& task) noexcept
 {
-    if (config::kLongRunMode)
-    {
-        scheduler::submit(std::move(task));
-    }
-    else
-    {
-        submit_to_context(std::move(task));
-    }
+    scheduler::submit(std::move(task));
 }
 
 inline void submit_to_scheduler(task<void>& task) noexcept
 {
-    if (config::kLongRunMode)
-    {
-        scheduler::submit(task.handle());
-    }
-    else
-    {
-        submit_to_context(task.handle());
-    }
+    scheduler::submit(task.handle());
 }
 
 inline void submit_to_scheduler(std::coroutine_handle<> handle) noexcept
 {
-    if (config::kLongRunMode)
-    {
-        scheduler::submit(handle);
-    }
-    else
-    {
-        submit_to_context(handle);
-    }
+    scheduler::submit(handle);
 }
 
 }; // namespace coro

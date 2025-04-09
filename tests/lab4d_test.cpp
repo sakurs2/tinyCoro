@@ -159,8 +159,7 @@ TEST_P(MutexTest, MultiFetchLock)
         submit_to_scheduler(lock_func(m_mtx, m_vec, m_id));
     }
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 
     ASSERT_EQ(m_vec.size(), func_num);
     ASSERT_EQ(m_id, func_num);
@@ -196,8 +195,7 @@ TEST_F(MutexTrylockTest, MultiTryLock)
         submit_to_scheduler(trylock_func(m_mtx, m_vec, m_id));
     }
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 
     ASSERT_EQ(m_vec.size(), func_num);
     ASSERT_EQ(m_id, func_num);
@@ -223,8 +221,7 @@ TEST_P(MutexHybridEventTest, MutexHybridEvent)
 
     submit_to_scheduler(set_func_hybrid_mutex(m_ev, m_setid, m_id));
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 
     ASSERT_EQ(m_setid, 1);
     ASSERT_EQ(m_id, wait_num + 1);
@@ -268,8 +265,7 @@ TEST_P(MutexHybridLatchTest, MutexHybridLatch)
         submit_to_scheduler(countdown_func_hybrid_mutex(lt, m_mtx, m_countdown_vec, m_id));
     }
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 
     ASSERT_EQ(m_countdown_vec.size(), countdown_num);
     ASSERT_EQ(m_wait_vec.size(), wait_num);
@@ -326,8 +322,7 @@ TEST_P(MutexHybridWaitgroupTest, MutexHybridWaitgroup)
         submit_to_scheduler(done_func_hybrid_mutex(m_wg, m_mtx, m_done_vec, m_id));
     }
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 
     ASSERT_EQ(m_done_vec.size(), done_num);
     ASSERT_EQ(m_wait_vec.size(), wait_num);

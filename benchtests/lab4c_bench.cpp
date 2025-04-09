@@ -136,6 +136,5 @@ void waitgroup_bench(const int loop_num)
         submit_to_scheduler(wait(wg, loop_num));
     }
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 }

@@ -70,9 +70,7 @@ TEST_P(LatchTest, CountdownAndWait)
         submit_to_scheduler(countdown_func(lt, m_id, &(m_countdown_vec[i])));
     }
 
-    scheduler::start();
-
-    scheduler::loop(false);
+    scheduler::loop();
 
     std::sort(m_countdown_vec.begin(), m_countdown_vec.end());
     std::sort(m_wait_vec.begin(), m_wait_vec.end());

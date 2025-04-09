@@ -208,8 +208,7 @@ TEST_P(ChannelTest, ChannelProducerConsumer)
         submit_to_scheduler(consumer(m_para));
     }
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 
     ASSERT_EQ(m_para.vec.size(), task_num);
     std::sort(m_para.vec.begin(), m_para.vec.end());
@@ -262,8 +261,7 @@ TEST_P(BufferChannelTest, BufferChannelProducerConsumer)
         submit_to_scheduler(consumer(m_para));
     }
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 
     ASSERT_EQ(m_para.vec.size(), task_num);
     std::sort(m_para.vec.begin(), m_para.vec.end());
@@ -304,8 +302,7 @@ TEST_F(ChannelStringTest, StringChannelProducerConsumer)
     submit_to_scheduler(producer(m_para, 0, num_per_producer));
     submit_to_scheduler(consumer(m_para));
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 
     ASSERT_EQ(m_para.vec.size(), num_per_producer);
     for (int i = 0; i < num_per_producer; i++)

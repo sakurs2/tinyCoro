@@ -126,8 +126,7 @@ void event_bench(const int loop_num)
         }
         submit_to_scheduler(set(pro, loop_num));
 
-        scheduler::start();
-        scheduler::loop(false);
+        scheduler::loop();
     }
     else
     {
@@ -139,7 +138,6 @@ void event_bench(const int loop_num)
         }
         submit_to_scheduler(set(ev, loop_num));
 
-        scheduler::start();
-        scheduler::loop(false);
+        scheduler::loop();
     }
 }
