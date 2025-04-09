@@ -7,14 +7,14 @@
 # tinyCoro C++20 coroutine library with liburing
 
 [![C++20](https://img.shields.io/badge/dialect-C%2B%2B20-blue)](https://en.cppreference.com/w/cpp/20)[![MIT license](https://img.shields.io/github/license/max0x7ba/atomic_queue)](https://github.com/sakurs2/tinyCoro/blob/master/LICENSE)![platform Linux x86_64](https://img.shields.io/badge/platform-Linux%20x86_64--bit-yellow)
-![Version Badge](https://img.shields.io/badge/version-v1%2E0-red)
+![Version Badge](https://img.shields.io/badge/version-v1%2E1-red)
 <!-- support below -->
 <!-- [![Build Status](link/actions/workflows/cmake.yml/badge.svg)](link/actions/workflows/cmake.yml) -->
 <!-- [![CI](https://github.com/jbaldwin/libcoro/actions/workflows/ci-coverage.yml/badge.svg)](https://github.com/jbaldwin/libcoro/actions/workflows/ci-coverage.yml)
 [![Coverage Status](https://coveralls.io/repos/github/jbaldwin/libcoro/badge.svg?branch=main)](https://coveralls.io/github/jbaldwin/libcoro?branch=main)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c190d4920e6749d4b4d1a9d7d6687f4f)](https://www.codacy.com/gh/jbaldwin/libcoro/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=jbaldwin/libcoro&amp;utm_campaign=Badge_Grade) -->
 
-> 若您想查看tinyCoroLab的参考答案，请根据tag切换至对应版本
+> **⚠️查看旧版本请切换分支**
 
 tinyCoro是一个linux系统环境下的以**C++20协程技术和linux io_uring技术相结合**的高性能异步协程库，其部分代码参考[libcoro](https://github.com/jbaldwin/libcoro)，意图为开发者提供较异步io更便捷，性能更优的库支持。高效且全能的io_uring和C++20无栈协程的轻量级切换相组合使得tinyCoro可以轻松应对I/O密集型负载，而C++20协程的特性使得用户可以以同步的方式编写异步执行的代码，大大降低了后期维护的工作量，且代码逻辑非常简单且清晰，除此外**tinyCoro还提供了协程安全组件，以协程suspend代替线程阻塞便于用户构建协程安全且高效的代码。** 下图展示了tinyCoro的任务调度机制：
 
@@ -65,6 +65,27 @@ tinyCoroLab实验课程免费！！！快点击[tinyCoroLab](https://github.com/
 
 tinyCoro其本身不仅具有高效的任务执行机制，还额外实现了高效的协程同步组件，当线程因线程同步组件陷入阻塞态时会让出执行权，而通过使用协程同步组件，线程当前执行的协程如陷入阻塞，那么线程会转而执行下一个任务，进而实现对cpu的充分利用。
 
+对于用户，进需要按照下列方式使用tinyCoro即可：
+
+```cpp
+task<> func(paras...) {
+  // codes...
+  submit_to_scheduler(...);
+  // or submit_to_context(...);
+  // codes...
+}
+
+int main() {
+  scheduler::init();
+  submit_to_scheduler(func(paras...));
+  schduler::loop(); // just loop work
+  // when loop finish, all work have been done!
+  return 0;
+}
+```
+
+tinyCoro的scheduler可以感知到各个context的运行状态，`schduler::loop`在所有context全部完成任务后才会向各个context下达停止指令，因此该函数一定会在所有任务执行完毕后返回，基于此用户可以在协程内部自由的向scheduler派发新任务，scheduler一定保证完成全部任务！
+
 ### event
 
 event用于同步协程，只有event处于set状态时对event调用`wait`的协程才可以恢复执行，否则陷入suspend状态。event的模板参数非空情况下还可以用于通过`set`设置值并由`wait`将该值返回。
@@ -105,9 +126,7 @@ int main(int argc, char const* argv[])
     }
     submit_to_scheduler(set_task());
 
-    scheduler::start();
-
-    scheduler::loop(false);
+    scheduler::loop();
     return 0;
 }
 ```
@@ -151,9 +170,7 @@ int main(int argc, char const* argv[])
         submit_to_scheduler(set_task(i));
     }
 
-    scheduler::start();
-
-    scheduler::loop(false);
+    scheduler::loop();
     return 0;
 }
 ```
@@ -194,8 +211,7 @@ int main(int argc, char const* argv[])
     submit_to_scheduler(done());
     submit_to_scheduler(done());
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
 
     return 0;
 }
@@ -237,9 +253,7 @@ int main(int argc, char const* argv[])
         submit_to_scheduler(add_task(i));
     }
 
-    scheduler::start();
-
-    scheduler::loop(false);
+    scheduler::loop();
     assert(data == 1000000);
     return 0;
 }
@@ -275,8 +289,7 @@ int main(int argc, char const* argv[])
 
     submit_to_scheduler(func(0));
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
     return 0;
 }
 ```
@@ -340,9 +353,7 @@ int main(int argc, char const* argv[])
     submit_to_scheduler(consumer());
     submit_to_scheduler(producer());
 
-    scheduler::start();
-
-    scheduler::loop(false);
+    scheduler::loop();
     return 0;
 }
 ```
@@ -393,9 +404,7 @@ int main(int argc, char const* argv[])
     submit_to_scheduler(producer(0));
     submit_to_scheduler(consumer(1));
 
-    scheduler::start();
-
-    scheduler::loop(false);
+    scheduler::loop();
     return 0;
 }
 ```
@@ -452,8 +461,7 @@ int main(int argc, char const* argv[])
     scheduler::init();
     submit_to_scheduler(client("localhost", 8000));
 
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
     return 0;
 }
 ```
@@ -503,8 +511,7 @@ int main(int argc, char const* argv[])
     scheduler::init();
 
     submit_to_scheduler(server(8000));
-    scheduler::start();
-    scheduler::loop(false);
+    scheduler::loop();
     return 0;
 }
 ```
