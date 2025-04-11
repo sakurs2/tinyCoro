@@ -46,4 +46,10 @@ inline auto init_meta_info() noexcept -> void
     ginfo.context_id = 0;
     ginfo.engine_id  = 0;
 }
+
+// This function is used to distinguish whether you are currently in a worker thread
+inline auto is_in_working_state() noexcept -> bool
+{
+    return linfo.ctx != nullptr;
+}
 }; // namespace coro::detail

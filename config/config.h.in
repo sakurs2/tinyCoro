@@ -64,7 +64,10 @@ constexpr unsigned int kSqthreadIdle = 2000; // millseconds
 // ===================== execute engine configuration =======================
 using ctx_id = uint32_t;
 
-// engine task queue length
+// engine task queue length, at least >= 4096,
+// if submit task to a full task queue:
+//    case in working thread: exec task directly
+//    case not in working thread: report error and ignore this task
 constexpr size_t kQueCap = 16384;
 
 // scheduler dispacher strategy
@@ -99,6 +102,6 @@ constexpr int kBacklog     = 5;
  * @warning kMaxTestTaskNum < (core-number * kQueCap), if your environment
  * don't follow this rule, decrease this number, otherwise test will block
  */
-constexpr int kMaxTestTaskNum = 100000; // TODO: change test with this para
+constexpr int kMaxTestTaskNum = 100000;
 }; // namespace coro::config
 #endif // CONFIG_H

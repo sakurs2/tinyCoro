@@ -16,6 +16,7 @@
 #include "coro/attribute.hpp"
 #include "coro/comp/latch.hpp"
 #include "coro/concepts/awaitable.hpp"
+#include "coro/scheduler.hpp"
 
 namespace coro
 {
@@ -224,7 +225,7 @@ public:
             m_handle.promise().set_pointer(p);
         }
         m_handle.promise().start(l);
-        submit_to_context(m_handle);
+        submit_to_scheduler(m_handle);
     }
 
 private:

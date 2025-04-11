@@ -1,4 +1,5 @@
 #include "coro/engine.hpp"
+#include "coro/log.hpp"
 #include "coro/net/io_info.hpp"
 #include "coro/task.hpp"
 
@@ -30,20 +31,53 @@ auto engine::schedule() noexcept -> coroutine_handle<>
     return coro;
 }
 
+// TODO: This function is very important to tinyCoro normally run,
+// after every update for tinyCoro, this function should be carefully checked!
 auto engine::submit_task(coroutine_handle<> handle) noexcept -> void
 {
     assert(handle != nullptr && "engine get nullptr task handle");
-    m_task_queue.push(handle);
-    wake_up();
+    if (m_task_queue.try_push(handle))
+    {
+        wake_up();
+    }
+    else if (is_in_working_state())
+    {
+        // A forced push will cause thread blocked forever,
+        // so exec this task directly
+        exec_task(handle);
+
+        // if (is_local_engine())
+        // {
+        //     // Engine push task to itself, it will be blocked forever,
+        //     // so exec this task first, which make engine won't block itself
+        //     exec_task(handle);
+        // }
+        // else
+        // {
+        //     // Other thread push task to engine, because engine won't block itself,
+        //     // so just block until engine's task queue has free position
+        //     // This case can also call exec_task(handle) directly
+        //     m_task_queue.push(handle);
+        // }
+    }
+    else
+    {
+        log::error("push task out of capacity before work thread run!");
+    }
 }
 
 auto engine::exec_one_task() noexcept -> void
 {
     auto coro = schedule();
-    coro.resume();
-    if (coro.done())
+    exec_task(coro);
+}
+
+auto engine::exec_task(coroutine_handle<> handle) -> void
+{
+    handle.resume();
+    if (handle.done())
     {
-        clean(coro);
+        clean(handle);
     }
 }
 

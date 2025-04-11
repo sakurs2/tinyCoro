@@ -27,6 +27,8 @@ using uring::urcptr;
 using uring::uring_proxy;
 using uring::ursptr;
 
+inline engine& local_engine() noexcept;
+
 template<typename T>
 // multi producer and multi consumer queue
 using mpmc_queue = AtomicQueue<T>;
@@ -166,6 +168,10 @@ public:
 
 private:
     auto do_io_submit() noexcept -> void;
+
+    auto exec_task(coroutine_handle<> handle) -> void;
+
+    inline auto is_local_engine() noexcept -> bool { return get_id() == local_engine().get_id(); };
 
 private:
     uint32_t    m_id;
