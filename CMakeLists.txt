@@ -20,9 +20,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release)
-endif()
 
 # TODO: Complete api visiblity
 # set(CMAKE_CXX_VISIBILITY_PRESET hidden) 
@@ -56,11 +53,17 @@ cmake_dependent_option(ENABLE_COMPILE_OPTIMIZE "Enable compile options -O3" ON "
 
 set(BUILD_SHARED_LIBS ${ENABLE_BUILD_SHARED_LIBS} CACHE INTERNAL "")
 
-if(ENABLE_DEBUG_MODE)
-    set(CMAKE_BUILD_TYPE Debug)
-else()
-    set(CMAKE_BUILD_TYPE Release)
+if(NOT CMAKE_BUILD_TYPE)
+    if(ENABLE_DEBUG_MODE)
+        set(CMAKE_BUILD_TYPE Debug)
+    else()
+        set(CMAKE_BUILD_TYPE Release)
+    endif()
+elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(ENABLE_DEBUG_MODE ON)
+    set(ENABLE_COMPILE_OPTIMIZE OFF)
 endif()
+
 
 # TODO: add more options
 
