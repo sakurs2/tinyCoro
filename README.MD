@@ -86,6 +86,8 @@ int main() {
 
 tinyCoro的scheduler可以感知到各个context的运行状态，`schduler::loop`在所有context全部完成任务后才会向各个context下达停止指令，因此该函数一定会在所有任务执行完毕后返回，基于此用户可以在协程内部自由的向scheduler派发新任务，scheduler一定保证完成全部任务！
 
+> **⚠️`schduler::loop`调用结束后工作线程全部退出，严禁再次调用`submit_to_scheduler`添加任务（该任务不会得到执行）**
+
 ### event
 
 event用于同步协程，只有event处于set状态时对event调用`wait`的协程才可以恢复执行，否则陷入suspend状态。event的模板参数非空情况下还可以用于通过`set`设置值并由`wait`将该值返回。

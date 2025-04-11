@@ -71,11 +71,20 @@ private:
     auto submit_task_impl(std::coroutine_handle<> handle) noexcept -> void;
 
 private:
-    size_t                                              m_ctx_cnt{0};
-    detail::ctx_container                               m_ctxs;
+    // The number of context
+    size_t                m_ctx_cnt{0};
+    detail::ctx_container m_ctxs;
+
+    // Dispatcher control the task dispatch strategys
     detail::dispatcher<coro::config::kDispatchStrategy> m_dispatcher;
-    stop_flag_type                                      m_ctx_stop_flag;
-    stop_token_type                                     m_stop_token;
+
+    // This variable includes some atomic flag to indicate the releated context's running state,
+    // atomic flag equals to 0 means the related context finish all job,
+    // but atomic flag can be increased again due to the related context receive new task
+    stop_flag_type m_ctx_stop_flag;
+
+    // When stop_token equals to 0, all context finish all work, so scheduler can stop all context
+    stop_token_type m_stop_token;
 };
 
 inline void submit_to_scheduler(task<void>&& task) noexcept

@@ -14,6 +14,9 @@ auto context::start() noexcept -> void
         [this](stop_token token)
         {
             this->init();
+
+            // Stop cb is empty means this context is out control of scheduler,
+            // so it should learn to close itself
             if (!(this->m_stop_cb))
             {
                 m_stop_cb = [&]() { m_job->request_stop(); };
