@@ -38,6 +38,9 @@ tinyCoroLab实验课程免费！！！快点击[tinyCoroLab](https://github.com/
   - [tinyCoroLab](#tinycorolab)
   - [Overview](#overview)
   - [Usage](#usage)
+    - [feature](#feature)
+      - [强大的schduler::loop](#强大的schdulerloop)
+      - [可无限添加任务且永不阻塞的执行引擎](#可无限添加任务且永不阻塞的执行引擎)
     - [event](#event)
     - [latch](#latch)
     - [wait\_group](#wait_group)
@@ -63,6 +66,10 @@ tinyCoroLab实验课程免费！！！快点击[tinyCoroLab](https://github.com/
 
 ## Usage
 
+### feature
+
+#### 强大的schduler::loop
+
 tinyCoro其本身不仅具有高效的任务执行机制，还额外实现了高效的协程同步组件，当线程因线程同步组件陷入阻塞态时会让出执行权，而通过使用协程同步组件，线程当前执行的协程如陷入阻塞，那么线程会转而执行下一个任务，进而实现对cpu的充分利用。
 
 对于用户，仅需要按照下列方式使用tinyCoro即可：
@@ -84,9 +91,13 @@ int main() {
 }
 ```
 
-tinyCoro的scheduler可以感知到各个context的运行状态，`schduler::loop`在所有context全部完成任务后才会向各个context下达停止指令，因此该函数一定会在所有任务执行完毕后返回，基于此用户可以在协程内部自由的向scheduler派发新任务，scheduler一定保证完成全部任务！
+tinyCoro的scheduler可以感知到各个context的运行状态，**`schduler::loop`在所有context全部完成任务后才会向各个context下达停止指令，** 因此该函数一定会在所有任务执行完毕后返回，基于此用户可以在协程内部自由的向scheduler派发新任务，scheduler一定保证完成全部任务！
 
-> **⚠️`schduler::loop`调用结束后工作线程全部退出，严禁再次调用`submit_to_scheduler`添加任务（该任务不会得到执行）**
+#### 可无限添加任务且永不阻塞的执行引擎
+
+tinyCoro执行引擎所持有的任务队列的容量通过配置文件参数来定义，容量仅限制scheduler启动前所预先接收的任务数量，提交任务超出容量日志会打印错误信息且忽略该任务。
+
+**但在协程任务内部可无限通过`submit_to_scheduler`或者`submit_to_context`派发新任务，且任意工作线程均不会因任务超出容量而阻塞，但超出容量会影响到任务的调度顺序。**
 
 ### event
 
