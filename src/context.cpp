@@ -87,6 +87,15 @@ auto context::run(stop_token token) noexcept -> void
 
 auto context::process_work() noexcept -> void
 {
+    // Why don't use below codes?
+    // while (m_engine.ready())
+    // {
+    //     m_engine.exec_one_task();
+    // }
+    // I want to keep task processed in a fifo order,
+    // even task queue was added more tasks during process_work,
+    // just process io task next
+
     auto num = m_engine.num_task_schedule();
     for (int i = 0; i < num; i++)
     {
