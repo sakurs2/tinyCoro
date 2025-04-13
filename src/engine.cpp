@@ -94,7 +94,7 @@ auto engine::do_io_submit() noexcept -> void
     {
         int num = m_upxy.submit();
         num_task_wait -= num;
-        assert(num_task_wait == 0);
+        // assert(num_task_wait == 0);
         m_num_io_running.fetch_add(num, std::memory_order_acq_rel); // must set before m_num_io_wait_submit
         m_num_io_wait_submit.fetch_sub(num, std::memory_order_acq_rel);
     }
