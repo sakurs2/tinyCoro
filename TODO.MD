@@ -2,6 +2,7 @@
 
 ### 正在解决中
 
+- [ ] 为协程同步组件中susend awaiter的恢复提供跨context且引用计数安全的能力
 - [ ] 修复内存invalid read的问题，该问题导致memtest不通过
 - [ ] 解决io_uring sqe消费过快问题
 - [ ] 添加io_uring链式调用的功能
