@@ -50,7 +50,7 @@ public:
         auto await_resume() noexcept -> void;
 
     protected:
-        auto register_awaiter() noexcept -> bool;
+        auto register_lock() noexcept -> bool;
 
         auto register_cv() noexcept -> void;
 
