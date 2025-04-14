@@ -53,7 +53,7 @@ foreach (tinycoro_test_source ${TINYCORO_TEST_SOURCES})
 
   add_custom_target(memtest-${tinycoro_test_command}
     COMMAND bash ${PROJECT_SOURCE_DIR}/scripts/memcheck.sh ${PROJECT_SOURCE_DIR}/temp/valgrind_output.xml $<TARGET_FILE:${tinycoro_test_name}> ${PROJECT_SOURCE_DIR}/temp
-    COMMAND python ${PROJECT_SOURCE_DIR}/scripts/analysis_valgrind.py ${PROJECT_SOURCE_DIR}/temp/valgrind_output.xml
+    COMMAND ${python_command} ${PROJECT_SOURCE_DIR}/scripts/analysis_valgrind.py ${PROJECT_SOURCE_DIR}/temp/valgrind_output.xml
     $<TARGET_FILE:${tinycoro_test_name}>
     DEPENDS ${tinycoro_test_name}
     COMMENT "Running ${tinycoro_test_command} memtests..."
@@ -85,7 +85,7 @@ add_custom_target(build-lab3
 )
 
 add_custom_target(test-lab3
-  COMMAND python ${PROJECT_SOURCE_DIR}/tests/lab3_test.py $<TARGET_FILE:lab3> ${PROJECT_SOURCE_DIR}/third_party/rust_echo_bench/target/release/echo_bench
+  COMMAND ${python_command} ${PROJECT_SOURCE_DIR}/tests/lab3_test.py $<TARGET_FILE:lab3> ${PROJECT_SOURCE_DIR}/third_party/rust_echo_bench/target/release/echo_bench
   DEPENDS lab3
 )
 

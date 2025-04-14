@@ -1,0 +1,17 @@
+function(check_python_command)
+    set(available_command "python" "python3")
+
+    foreach(py_command IN LISTS available_command)
+      set(python_temp_command ${py_command})
+      execute_process(COMMAND ${python_temp_command} -c "import sys; sys.exit(0 if sys.version_info >= (3, 7) else 1)"
+                  RESULT_VARIABLE PYTHON_COMMAND_CHECK)
+      if(PYTHON_COMMAND_CHECK STREQUAL "0")
+          set(PYTHON_COMMAND_AVAILABLE TRUE PARENT_SCOPE)
+          set(python_command ${python_temp_command} PARENT_SCOPE)
+          return()
+      else()
+          set(PYTHON_COMMAND_AVAILABLE FALSE PARENT_SCOPE)
+      endif()
+    endforeach()
+    set(PYTHON_COMMAND_AVAILABLE FALSE PARENT_SCOPE)
+endfunction()

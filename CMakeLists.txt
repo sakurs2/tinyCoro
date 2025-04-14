@@ -28,6 +28,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(GNUInstallDirs)
 include(GenerateExportHeader)
 include(CMakeDependentOption)
+include(cmake/env.cmake)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
 ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
@@ -73,6 +74,14 @@ message(STATUS "Enable testing: ${ENABLE_UNIT_TESTS}")
 message(STATUS "Enable debug mode: ${ENABLE_DEBUG_MODE}")
 message(STATUS "Enable build shared libs: ${ENABLE_BUILD_SHARED_LIBS}")
 message(STATUS "Enable compile options -O3: ${ENABLE_COMPILE_OPTIMIZE}")
+
+# check python version
+check_python_command()
+if(PYTHON_COMMAND_AVAILABLE)
+    message(STATUS "python command: ${python_command}")
+else()
+    message(FATAL_ERROR "Can't exec python or python3 or version is lower than 3.7. Please install Python 3.7 or higher.")
+endif()
 
 find_library(URING_PATH 
     NAMES uring
