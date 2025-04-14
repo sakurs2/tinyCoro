@@ -14,7 +14,7 @@ auto condition_variable::cv_awaiter::await_resume() noexcept -> void
     m_ctx.unregister_wait(m_suspend_state);
 }
 
-auto condition_variable::cv_awaiter::register_lock() noexcept -> bool
+auto condition_variable::cv_awaiter::register_awaiter() noexcept -> bool
 {
     if (m_cond && m_cond())
     {
