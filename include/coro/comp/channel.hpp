@@ -70,6 +70,7 @@ protected:
 };
 }; // namespace detail
 
+// TODO: Add batch send and batch recv for channel
 template<concepts::conventional_type T, size_t capacity = 0>
 class channel : public detail::channel_base
 {
