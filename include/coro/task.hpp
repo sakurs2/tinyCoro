@@ -22,7 +22,7 @@ enum class coro_state : uint8_t
     cancel, // TODO: Impl cancel
     none
 };
-
+// TODO: Add carefully control for lvalue call and rvalue call
 // TODO: Add yield value support
 struct promise_base
 {
