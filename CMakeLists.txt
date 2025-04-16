@@ -110,7 +110,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE "$<$<CONFIG:DEBUG>:DEBUG>")
 target_compile_definitions(${PROJECT_NAME} PRIVATE "$<$<CONFIG:RELEASE>:RELEASE>")
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 target_include_directories(${PROJECT_NAME} PUBLIC ${SRC_INCLUDE_DIR} ${THIRD_PARTY_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} PRIVATE ${URING_PATH})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${URING_PATH} pthread)
 generate_export_header(${PROJECT_NAME} BASE_NAME CORO EXPORT_FILE_NAME include/coro/export.hpp)
 
 if(ENABLE_UNIT_TESTS)
