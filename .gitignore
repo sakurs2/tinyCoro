@@ -40,3 +40,4 @@ Testing
 temp
 config/config.h
 examples/coro_debug.cpp
+.cache
