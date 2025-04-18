@@ -41,6 +41,7 @@ tinyCoroLab实验课程免费！！！快点击[tinyCoroLab](https://github.com/
     - [feature](#feature)
       - [强大的schduler::loop](#强大的schdulerloop)
       - [可无限添加任务且永不阻塞的执行引擎](#可无限添加任务且永不阻塞的执行引擎)
+    - [timer](#timer)
     - [event](#event)
     - [latch](#latch)
     - [wait\_group](#wait_group)
@@ -98,6 +99,14 @@ tinyCoro的scheduler可以感知到各个context的运行状态，**`schduler::l
 tinyCoro执行引擎所持有的任务队列的容量通过配置文件参数来定义，容量仅限制scheduler启动前所预先接收的任务数量，提交任务超出容量日志会打印错误信息且忽略该任务。
 
 **但在协程任务内部可无限通过`submit_to_scheduler`或者`submit_to_context`派发新任务，且任意工作线程均不会因任务超出容量而阻塞，但超出容量会影响到任务的调度顺序。**
+
+### timer
+
+timer是一个可被协程调用的定时器，通过`co_await timer`协程将会陷入suspend状态，不会阻塞线程运行。
+
+```C++
+${EXAMPLE_CORO_TIMER}
+```
 
 ### event
 

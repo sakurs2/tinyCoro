@@ -23,6 +23,7 @@ enum io_type
     tcp_write,
     tcp_close,
     stdin,
+    timer,
     none
 };
 

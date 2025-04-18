@@ -35,6 +35,10 @@ template_contents=$(cat '.githooks/readme-template.MD')
 cp .githooks/readme-template.MD README.MD
 
 template_contents=$(cat 'README.MD')
+example_contents=$(cat 'examples/timer.cpp')
+echo "${template_contents/\$\{EXAMPLE_CORO_TIMER\}/$example_contents}" > README.MD
+
+template_contents=$(cat 'README.MD')
 example_contents=$(cat 'examples/event.cpp')
 echo "${template_contents/\$\{EXAMPLE_CORO_EVENT\}/$example_contents}" > README.MD
 

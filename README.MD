@@ -41,6 +41,7 @@ tinyCoroLab实验课程免费！！！快点击[tinyCoroLab](https://github.com/
     - [feature](#feature)
       - [强大的schduler::loop](#强大的schdulerloop)
       - [可无限添加任务且永不阻塞的执行引擎](#可无限添加任务且永不阻塞的执行引擎)
+    - [timer](#timer)
     - [event](#event)
     - [latch](#latch)
     - [wait\_group](#wait_group)
@@ -98,6 +99,34 @@ tinyCoro的scheduler可以感知到各个context的运行状态，**`schduler::l
 tinyCoro执行引擎所持有的任务队列的容量通过配置文件参数来定义，容量仅限制scheduler启动前所预先接收的任务数量，提交任务超出容量日志会打印错误信息且忽略该任务。
 
 **但在协程任务内部可无限通过`submit_to_scheduler`或者`submit_to_context`派发新任务，且任意工作线程均不会因任务超出容量而阻塞，但超出容量会影响到任务的调度顺序。**
+
+### timer
+
+timer是一个可被协程调用的定时器，通过`co_await timer`协程将会陷入suspend状态，不会阻塞线程运行。
+
+```C++
+#include "coro/coro.hpp"
+
+using namespace coro;
+
+using coro::time::timer;
+
+task<> timer_func()
+{
+    log::info("timer begin");
+    auto result = co_await timer{}.add_seconds(3).add_mseconds(500);
+    log::info("timer end,  result: {}", result);
+}
+
+int main(int argc, char const* argv[])
+{
+    /* code */
+    scheduler::init();
+    submit_to_scheduler(timer_func());
+    scheduler::loop();
+    return 0;
+}
+```
 
 ### event
 
@@ -553,9 +582,7 @@ benchmark分别会在wsl2和ubuntu物理机中测算。
 
 ### 测试结果
 
-针对不同负载大小和不同并发连接数进行压测，测试时长30s。
-
-> **⚠️理论上压测工具会期望在测试时长结束压测，但当并发连接数过多如1000时，tinyCoro需要消耗掉更多时间来处理完压测请求**
+针对不同负载大小和不同并发连接数进行压测。
 
 #### 128b-avg(req/s)
 
