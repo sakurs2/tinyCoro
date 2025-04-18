@@ -7,6 +7,7 @@
 - [ ] 解决io_uring sqe消费过快问题
 - [ ] 添加io_uring链式调用的功能
 - [ ] 为uring添加polling模式
+- [ ] 添加clang-tidy,clang-lint等代码检查功能
 
 ### 已完成
 
