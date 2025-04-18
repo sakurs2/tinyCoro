@@ -498,6 +498,7 @@ TEST_P(EngineMixTaskNopIOTest, MixTaskNopIO)
 {
     int task_num, nopio_num;
     std::tie(task_num, nopio_num) = GetParam();
+    m_vec.reserve(task_num + nopio_num + 1);
     m_vec.resize(nopio_num);
     m_infos.resize(nopio_num);
 
