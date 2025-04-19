@@ -8,6 +8,7 @@
 - [ ] 添加io_uring链式调用的功能
 - [ ] 为uring添加polling模式
 - [ ] 添加clang-tidy,clang-lint等代码检查功能
+- [ ] 添加git提交模板
 
 ### 已完成
 

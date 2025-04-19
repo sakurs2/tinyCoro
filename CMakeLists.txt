@@ -74,6 +74,10 @@ message(STATUS "Enable testing: ${ENABLE_UNIT_TESTS}")
 message(STATUS "Enable debug mode: ${ENABLE_DEBUG_MODE}")
 message(STATUS "Enable build shared libs: ${ENABLE_BUILD_SHARED_LIBS}")
 message(STATUS "Enable compile options -O3: ${ENABLE_COMPILE_OPTIMIZE}")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message(WARNING "The debug mode use -O0(-Og), which cause gcc won't optimize coroutine tail recursion, "
+                    "loop co_await too many times(such as 10w) will cause stack overflow!")
+endif()
 
 # check python version
 check_python_command()
