@@ -118,7 +118,7 @@ INSTANTIATE_TEST_SUITE_P(
 
 TEST_P(EventValueTest, SetValueAndWait)
 {
-    srand(static_cast<unsigned int>(time(0)));
+    srand(static_cast<unsigned int>(std::time(0)));
     int randnum = rand();
 
     int thread_num, wait_num;
