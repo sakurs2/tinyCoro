@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./resource/tinycoro_show.jpg" alt="tinycoro Logo" height="200">
+  <img src="./resource/tinycoro_intro.jpg" alt="tinycoro Logo">
 </p>
 
 -----------------
