@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./resource/tinycoro.png" alt="tinycoro Logo" height="200">
+  <img src="./resource/tinycoro_show.jpg" alt="tinycoro Logo" height="200">
 </p>
 
 -----------------
@@ -17,7 +17,7 @@
 > **⚠️查看旧版本请切换分支**
 > **⭐项目制作不易，请点击star支持一下❤️**
 
-> **🔥tinyCoroLab的更新会持续进行，并致力于打造对标工业级标准的代码质量和性能，我也诚挚的邀请您与我共同建设该课程🚀**
+> **🔥tinyCoro的更新会持续进行，并致力于打造对标工业标准的代码质量和性能，欢迎您与我共同建设tinyCoro💪**
 
 tinyCoro是一个linux系统环境下的以**C++20协程技术和linux io_uring技术相结合**的高性能异步协程库，其部分代码参考[libcoro](https://github.com/jbaldwin/libcoro)，意图为开发者提供较异步io更便捷，性能更优的库支持。高效且全能的io_uring和C++20无栈协程的轻量级切换相组合使得tinyCoro可以轻松应对I/O密集型负载，而C++20协程的特性使得用户可以以同步的方式编写异步执行的代码，大大降低了后期维护的工作量，且代码逻辑非常简单且清晰，除此外**tinyCoro还提供了协程安全组件，以协程suspend代替线程阻塞便于用户构建协程安全且高效的代码。** 下图展示了tinyCoro的任务调度机制：
 
