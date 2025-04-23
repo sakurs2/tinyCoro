@@ -36,7 +36,7 @@ def run_test(
             [
                 benchtool_path,
                 "--address",
-                f"127.0.0.1:8002",
+                f"127.0.0.1:{server_port}",
                 "--number",
                 "100",
                 "--duration",

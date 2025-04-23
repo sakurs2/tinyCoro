@@ -76,6 +76,44 @@ void io_cb(io_info* info, int res)
     *num     = res;
 }
 
+void io_cb_resume(io_info* info, int res)
+{
+    auto num = reinterpret_cast<int*>(info->data);
+    *num     = res;
+    detail::local_engine().submit_task(info->handle);
+}
+
+struct test_noop_awaiter
+{
+    test_noop_awaiter(detail::engine& engine, io_info& info, int* data) noexcept : m_engine(engine), m_info(info)
+    {
+        m_sqe       = m_engine.get_free_urs();
+        m_info.data = reinterpret_cast<uintptr_t>(data);
+        m_info.cb   = io_cb_resume;
+
+        io_uring_prep_nop(m_sqe);
+        io_uring_sqe_set_data(m_sqe, &m_info);
+
+        m_engine.add_io_submit();
+    }
+
+    constexpr auto await_ready() noexcept -> bool { return false; }
+
+    auto await_suspend(std::coroutine_handle<> handle) noexcept -> void { m_info.handle = handle; }
+
+    constexpr auto await_resume() noexcept -> void {}
+
+    detail::engine&     m_engine;
+    io_info&            m_info;
+    coro::uring::ursptr m_sqe;
+};
+
+task<> noop_io_task(detail::engine& engine, io_info& info, int* data)
+{
+    co_await test_noop_awaiter(engine, info, data);
+    co_return;
+}
+
 /*************************************************************
  *                          tests                            *
  *************************************************************/
@@ -202,73 +240,74 @@ TEST_F(EngineTest, ExecOneNoDetachTaskByEngine)
     ASSERT_EQ(m_vec[0], 1);
 }
 
-// test add nop-io before engine poll
-TEST_F(EngineTest, AddNopIOBeforePoll)
-{
-    io_info info;
-    m_vec.push_back(1);
+// TODO: Add more nopio tests for engine
+// // test add nop-io before engine poll
+// TEST_F(EngineTest, AddNopIOBeforePoll)
+// {
+//     io_info info;
+//     m_vec.push_back(1);
 
-    auto io_thread = std::thread(
-        [&]()
-        {
-            info.data = reinterpret_cast<uintptr_t>(&m_vec[0]);
-            info.cb   = io_cb;
-            auto sqe  = m_engine.get_free_urs();
-            ASSERT_NE(sqe, nullptr);
-            io_uring_prep_nop(sqe);
-            io_uring_sqe_set_data(sqe, &info);
-            m_engine.add_io_submit();
-        });
+//     auto io_thread = std::thread(
+//         [&]()
+//         {
+//             info.data = reinterpret_cast<uintptr_t>(&m_vec[0]);
+//             info.cb   = io_cb;
+//             auto sqe  = m_engine.get_free_urs();
+//             ASSERT_NE(sqe, nullptr);
+//             io_uring_prep_nop(sqe);
+//             io_uring_sqe_set_data(sqe, &info);
+//             m_engine.add_io_submit();
+//         });
 
-    auto poll_thread = std::thread(
-        [&]()
-        {
-            utils::msleep(100); // ensure io_thread finish first
-            do
-            {
-                m_engine.poll_submit();
-            } while (!m_engine.empty_io());
-        });
+//     auto poll_thread = std::thread(
+//         [&]()
+//         {
+//             utils::msleep(100); // ensure io_thread finish first
+//             do
+//             {
+//                 m_engine.poll_submit();
+//             } while (!m_engine.empty_io());
+//         });
 
-    io_thread.join();
-    poll_thread.join();
+//     io_thread.join();
+//     poll_thread.join();
 
-    ASSERT_EQ(m_vec[0], 0);
-}
+//     ASSERT_EQ(m_vec[0], 0);
+// }
 
-// test add nop-io after engine poll
-TEST_F(EngineTest, AddNopIOAfterPoll)
-{
-    io_info info;
-    m_vec.push_back(1);
+// // test add nop-io after engine poll
+// TEST_F(EngineTest, AddNopIOAfterPoll)
+// {
+//     io_info info;
+//     m_vec.push_back(1);
 
-    auto io_thread = std::thread(
-        [&]()
-        {
-            utils::msleep(100);
-            info.data = reinterpret_cast<uintptr_t>(&m_vec[0]);
-            info.cb   = io_cb;
-            auto sqe  = m_engine.get_free_urs();
-            ASSERT_NE(sqe, nullptr);
-            io_uring_prep_nop(sqe);
-            io_uring_sqe_set_data(sqe, &info);
-            m_engine.add_io_submit();
-        });
+//     auto io_thread = std::thread(
+//         [&]()
+//         {
+//             utils::msleep(100);
+//             info.data = reinterpret_cast<uintptr_t>(&m_vec[0]);
+//             info.cb   = io_cb;
+//             auto sqe  = m_engine.get_free_urs();
+//             ASSERT_NE(sqe, nullptr);
+//             io_uring_prep_nop(sqe);
+//             io_uring_sqe_set_data(sqe, &info);
+//             m_engine.add_io_submit();
+//         });
 
-    auto poll_thread = std::thread(
-        [&]()
-        {
-            do
-            {
-                m_engine.poll_submit();
-            } while (!m_engine.empty_io());
-        });
+//     auto poll_thread = std::thread(
+//         [&]()
+//         {
+//             do
+//             {
+//                 m_engine.poll_submit();
+//             } while (!m_engine.empty_io());
+//         });
 
-    io_thread.join();
-    poll_thread.join();
+//     io_thread.join();
+//     poll_thread.join();
 
-    ASSERT_EQ(m_vec[0], 0);
-}
+//     ASSERT_EQ(m_vec[0], 0);
+// }
 
 // test add batch nop-io
 TEST_P(EngineNopIOTest, AddBatchNopIO)
@@ -523,15 +562,19 @@ TEST_P(EngineMixTaskNopIOTest, MixTaskNopIO)
         {
             for (int i = 0; i < nopio_num; i++)
             {
-                m_infos[i].data = reinterpret_cast<uintptr_t>(&m_vec[i]);
-                m_infos[i].cb   = io_cb;
+                // m_infos[i].data = reinterpret_cast<uintptr_t>(&m_vec[i]);
+                // m_infos[i].cb   = io_cb;
 
-                auto sqe = m_engine.get_free_urs();
-                ASSERT_NE(sqe, nullptr);
-                io_uring_prep_nop(sqe);
-                io_uring_sqe_set_data(sqe, &m_infos[i]);
+                // auto sqe = m_engine.get_free_urs();
+                // ASSERT_NE(sqe, nullptr);
+                // io_uring_prep_nop(sqe);
+                // io_uring_sqe_set_data(sqe, &m_infos[i]);
 
-                m_engine.add_io_submit();
+                // m_engine.add_io_submit();
+                auto task   = noop_io_task(m_engine, m_infos[i], &(m_vec[i]));
+                auto handle = task.handle();
+                task.detach();
+                m_engine.submit_task(handle);
                 if ((i + 1) % 100 == 0)
                 {
                     utils::msleep(10);
@@ -548,8 +591,11 @@ TEST_P(EngineMixTaskNopIOTest, MixTaskNopIO)
     auto poll_thread = std::thread(
         [&]()
         {
+            detail::linfo.egn = &m_engine; // Must set this
+
             int cnt = 0;
-            while (cnt < task_num + 1)
+            // only all task been processed, poll thread will finish
+            while (cnt < 2 * nopio_num + task_num + 1)
             {
                 m_engine.poll_submit();
                 while (m_engine.ready())

@@ -89,14 +89,14 @@ auto engine::handle_cqe_entry(urcptr cqe) noexcept -> void
 
 auto engine::do_io_submit() noexcept -> void
 {
-    int num_task_wait = m_num_io_wait_submit.load(std::memory_order_acquire);
-    if (num_task_wait > 0)
+    // int num_task_wait = m_num_io_wait_submit.load(std::memory_order_acquire);
+    if (m_num_io_wait_submit > 0)
     {
-        int num = m_upxy.submit();
-        num_task_wait -= num;
+        // a submit call will submit all io waited
+        [[CORO_MAYBE_UNUSED]] auto _ = m_upxy.submit();
         // assert(num_task_wait == 0);
-        m_num_io_running.fetch_add(num, std::memory_order_acq_rel); // must set before m_num_io_wait_submit
-        m_num_io_wait_submit.fetch_sub(num, std::memory_order_acq_rel);
+        m_num_io_running += m_num_io_wait_submit;
+        m_num_io_wait_submit = 0;
     }
 }
 
@@ -112,7 +112,7 @@ auto engine::poll_submit() noexcept -> void
         return;
     }
 
-    auto num = m_upxy.peek_batch_cqe(m_urc.data(), m_num_io_running.load(std::memory_order_acquire));
+    auto num = m_upxy.peek_batch_cqe(m_urc.data(), m_num_io_running);
 
     if (num != 0)
     {
@@ -121,7 +121,7 @@ auto engine::poll_submit() noexcept -> void
             handle_cqe_entry(m_urc[i]);
         }
         m_upxy.cq_advance(num);
-        m_num_io_running.fetch_sub(num, std::memory_order_acq_rel);
+        m_num_io_running -= num;
     }
 }
 

@@ -33,9 +33,9 @@ template<typename T>
 // multi producer and multi consumer queue
 using mpmc_queue = AtomicQueue<T>;
 
-#define wake_by_task(val) (((val) & engine::task_mask) > 0)
-#define wake_by_io(val)   (((val) & engine::io_mask) > 0)
-#define wake_by_cqe(val)  (((val) & engine::cqe_mask) > 0)
+#define wake_by_task(val) (((val)&engine::task_mask) > 0)
+#define wake_by_io(val)   (((val)&engine::io_mask) > 0)
+#define wake_by_cqe(val)  (((val)&engine::cqe_mask) > 0)
 
 class engine
 {
@@ -136,11 +136,12 @@ public:
      */
     [[CORO_TEST_USED(lab2a)]] inline auto add_io_submit() noexcept -> void
     {
-        m_num_io_wait_submit.fetch_add(1, std::memory_order_release);
+        m_num_io_wait_submit += 1;
 
+        // WARNING: don;t need to wake_up
         // if don't wake up, the poll_submit may alaways blocked in
         // read evebtfd
-        wake_up(io_flag);
+        // wake_up(io_flag);
     }
 
     /**
@@ -155,8 +156,7 @@ public:
      */
     [[CORO_TEST_USED(lab2a)]] inline auto empty_io() noexcept -> bool
     {
-        return m_num_io_wait_submit.load(std::memory_order_acquire) == 0 &&
-               m_num_io_running.load(std::memory_order_acquire) == 0;
+        return m_num_io_wait_submit == 0 && m_num_io_running == 0;
     }
 
     /**
@@ -183,10 +183,12 @@ private:
     // used to fetch cqe entry
     array<urcptr, config::kQueCap> m_urc;
 
+    // io_uring is recommended to use in only one thread,
+    // so IO task fetch sqe won't cross-threading, don't need to use atomic
     // the number of io to be submitted
-    atomic<size_t> m_num_io_wait_submit{0};
+    size_t m_num_io_wait_submit{0};
     // the number of io running
-    atomic<size_t> m_num_io_running{0};
+    size_t m_num_io_running{0};
 };
 
 /**
