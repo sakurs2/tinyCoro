@@ -20,6 +20,10 @@ auto engine::deinit() noexcept -> void
     m_upxy.deinit();
     m_num_io_wait_submit = 0;
     m_num_io_running     = 0;
+    if (!m_task_queue.was_empty())
+    {
+        log::warn("task queue isn't empty when engine deinit");
+    }
     mpmc_queue<coroutine_handle<>> task_queue;
     m_task_queue.swap(task_queue);
 }
