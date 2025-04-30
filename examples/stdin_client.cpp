@@ -26,6 +26,12 @@ task<> client(const char* addr, int port)
     sockfd      = co_await client.connect();
     assert(sockfd > 0 && "connect error");
 
+    if (sockfd <= 0)
+    {
+        log::error("connect error");
+        co_return;
+    }
+
     submit_to_scheduler(echo(sockfd));
 
     char buf[BUFFLEN] = {0};

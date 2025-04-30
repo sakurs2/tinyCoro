@@ -39,6 +39,7 @@ auto engine::schedule() noexcept -> coroutine_handle<>
 // after every update for tinyCoro, this function should be carefully checked!
 auto engine::submit_task(coroutine_handle<> handle) noexcept -> void
 {
+    // FIXME: This way will cause stack overflow
     assert(handle != nullptr && "engine get nullptr task handle");
     if (m_task_queue.try_push(handle))
     {
@@ -96,7 +97,9 @@ auto engine::do_io_submit() noexcept -> void
     // int num_task_wait = m_num_io_wait_submit.load(std::memory_order_acquire);
     if (m_num_io_wait_submit > 0)
     {
-        // a submit call will submit all io waited
+        // A submit call will submit all io waited.
+        // If polling mode is enabled, call submit may do nothing,
+        // but still need to call submit to wake up kernel thread
         [[CORO_MAYBE_UNUSED]] auto _ = m_upxy.submit();
         // assert(num_task_wait == 0);
         m_num_io_running += m_num_io_wait_submit;
@@ -104,7 +107,6 @@ auto engine::do_io_submit() noexcept -> void
     }
 }
 
-// TODO: finish uring polling mode
 auto engine::poll_submit() noexcept -> void
 {
     do_io_submit();

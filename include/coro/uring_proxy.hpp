@@ -34,10 +34,12 @@ public:
     {
         // don't need to set m_para
         memset(&m_para, 0, sizeof(m_para));
-#ifdef ENABLE_POOLING
-        m_para.flags |= IORING_SETUP_SQPOLL;
-        m_para.sq_thread_idle = config::kSqthreadIdle;
-#endif // ENABLE_POOLING
+
+        if constexpr (config::kEnablePOOLING)
+        {
+            m_para.flags |= IORING_SETUP_SQPOLL;
+            m_para.sq_thread_idle = config::kSqthreadIdle;
+        }
 
         auto res = io_uring_queue_init_params(entry_length, &m_uring, &m_para);
         assert(res == 0 && "uring_proxy init uring failed");
