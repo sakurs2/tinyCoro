@@ -66,6 +66,7 @@ tinyCoroLab实验课程免费！！！快点击[tinyCoroLab](https://github.com/
     - [构建环境](#构建环境)
     - [构建流程](#构建流程)
     - [cmake options](#cmake-options)
+  - [更新日志](#更新日志)
   - [support](#support)
 
 ## Usage
@@ -292,6 +293,10 @@ make -j$(nproc)
 | ENABLE_UNIT_TESTS   | ON  | 允许构建测试  |
 | ENABLE_DEBUG_MODE  | OFF | ON代表开启debug模式，否则为release模式 |
 | ENABLE_BUILD_SHARED_LIBS  | OFF | 库的默认构建为动态库 |
+
+## 更新日志
+
+请点击👉[tinyCoro update log](https://sakurs2.gitbook.io/tinycorolab-docs/updatelog)
 
 ## support
 
