@@ -18,7 +18,7 @@ public:
 class tcp_accept_awaiter : public detail::base_io_awaiter
 {
 public:
-    tcp_accept_awaiter(int listenfd, int flags) noexcept;
+    tcp_accept_awaiter(int listenfd, int io_flag = 0, int sqe_flag = 0) noexcept;
 
     static auto callback(io_info* data, int res) noexcept -> void;
 
@@ -29,7 +29,7 @@ private:
 class tcp_read_awaiter : public detail::base_io_awaiter
 {
 public:
-    tcp_read_awaiter(int sockfd, char* buf, size_t len, int flags) noexcept;
+    tcp_read_awaiter(int sockfd, char* buf, size_t len, int io_flag = 0, int sqe_flag = 0) noexcept;
 
     static auto callback(io_info* data, int res) noexcept -> void;
 };
@@ -37,7 +37,7 @@ public:
 class tcp_write_awaiter : public detail::base_io_awaiter
 {
 public:
-    tcp_write_awaiter(int sockfd, char* buf, size_t len, int flags) noexcept;
+    tcp_write_awaiter(int sockfd, char* buf, size_t len, int io_flag = 0, int sqe_flag = 0) noexcept;
 
     static auto callback(io_info* data, int res) noexcept -> void;
 };
@@ -61,7 +61,7 @@ public:
 class stdin_awaiter : public detail::base_io_awaiter
 {
 public:
-    stdin_awaiter(char* buf, size_t len, int flags) noexcept;
+    stdin_awaiter(char* buf, size_t len, int io_flag = 0, int sqe_flag = 0) noexcept;
 
     static auto callback(io_info* data, int res) noexcept -> void;
 };

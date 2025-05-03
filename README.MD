@@ -487,6 +487,12 @@ task<> client(const char* addr, int port)
     sockfd      = co_await client.connect();
     assert(sockfd > 0 && "connect error");
 
+    if (sockfd <= 0)
+    {
+        log::error("connect error");
+        co_return;
+    }
+
     submit_to_scheduler(echo(sockfd));
 
     char buf[BUFFLEN] = {0};
@@ -660,7 +666,7 @@ sudo make install;
 mkdir build
 cd build
 cmake ..
-make
+make -j$(nproc)
 ```
 
 ### cmake options

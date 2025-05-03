@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./resource/tinycoro.png" alt="tinycoro Logo" height="200">
+  <img src="./resource/tinycoro_intro.jpg" alt="tinycoro Logo">
 </p>
 
 -----------------
@@ -15,6 +15,9 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c190d4920e6749d4b4d1a9d7d6687f4f)](https://www.codacy.com/gh/jbaldwin/libcoro/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=jbaldwin/libcoro&amp;utm_campaign=Badge_Grade) -->
 
 > **⚠️查看旧版本请切换分支**
+> **⭐项目制作不易，请点击star支持一下❤️**
+
+> **🔥tinyCoro的更新会持续进行，并致力于打造对标工业标准的代码质量和性能，欢迎您与我共同建设tinyCoro💪**
 
 tinyCoro是一个linux系统环境下的以**C++20协程技术和linux io_uring技术相结合**的高性能异步协程库，其部分代码参考[libcoro](https://github.com/jbaldwin/libcoro)，意图为开发者提供较异步io更便捷，性能更优的库支持。高效且全能的io_uring和C++20无栈协程的轻量级切换相组合使得tinyCoro可以轻松应对I/O密集型负载，而C++20协程的特性使得用户可以以同步的方式编写异步执行的代码，大大降低了后期维护的工作量，且代码逻辑非常简单且清晰，除此外**tinyCoro还提供了协程安全组件，以协程suspend代替线程阻塞便于用户构建协程安全且高效的代码。** 下图展示了tinyCoro的任务调度机制：
 
@@ -38,9 +41,9 @@ tinyCoroLab实验课程免费！！！快点击[tinyCoroLab](https://github.com/
   - [tinyCoroLab](#tinycorolab)
   - [Overview](#overview)
   - [Usage](#usage)
-    - [feature](#feature)
-      - [强大的schduler::loop](#强大的schdulerloop)
-      - [可无限添加任务且永不阻塞的执行引擎](#可无限添加任务且永不阻塞的执行引擎)
+    - [🤖feature](#feature)
+      - [🔥强大的schduler::loop](#强大的schdulerloop)
+      - [🚀可无限添加任务且永不阻塞的执行引擎](#可无限添加任务且永不阻塞的执行引擎)
     - [timer](#timer)
     - [event](#event)
     - [latch](#latch)
@@ -67,9 +70,9 @@ tinyCoroLab实验课程免费！！！快点击[tinyCoroLab](https://github.com/
 
 ## Usage
 
-### feature
+### 🤖feature
 
-#### 强大的schduler::loop
+#### 🔥强大的schduler::loop
 
 tinyCoro其本身不仅具有高效的任务执行机制，还额外实现了高效的协程同步组件，当线程因线程同步组件陷入阻塞态时会让出执行权，而通过使用协程同步组件，线程当前执行的协程如陷入阻塞，那么线程会转而执行下一个任务，进而实现对cpu的充分利用。
 
@@ -94,7 +97,7 @@ int main() {
 
 tinyCoro的scheduler可以感知到各个context的运行状态，**`schduler::loop`在所有context全部完成任务后才会向各个context下达停止指令，** 因此该函数一定会在所有任务执行完毕后返回，基于此用户可以在协程内部自由的向scheduler派发新任务，scheduler一定保证完成全部任务！
 
-#### 可无限添加任务且永不阻塞的执行引擎
+#### 🚀可无限添加任务且永不阻塞的执行引擎
 
 tinyCoro执行引擎所持有的任务队列的容量通过配置文件参数来定义，容量仅限制scheduler启动前所预先接收的任务数量，提交任务超出容量日志会打印错误信息且忽略该任务。
 
@@ -279,7 +282,7 @@ sudo make install;
 mkdir build
 cd build
 cmake ..
-make
+make -j$(nproc)
 ```
 
 ### cmake options

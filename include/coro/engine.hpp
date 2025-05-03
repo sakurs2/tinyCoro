@@ -138,7 +138,7 @@ public:
     {
         m_num_io_wait_submit += 1;
 
-        // WARNING: don;t need to wake_up
+        // WARNING: don't need to wake_up
         // if don't wake up, the poll_submit may alaways blocked in
         // read evebtfd
         // wake_up(io_flag);
@@ -165,6 +165,14 @@ public:
      * @return uint32_t
      */
     inline auto get_id() noexcept -> uint32_t { return m_id; }
+
+    /**
+     * @brief Get the uring object owned by engine, so the outside can use
+     * some function of uring
+     *
+     * @return uring_proxy&
+     */
+    inline auto get_uring() noexcept -> uring_proxy& { return m_upxy; }
 
 private:
     auto do_io_submit() noexcept -> void;

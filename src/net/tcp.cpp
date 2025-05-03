@@ -1,4 +1,4 @@
-#include <exception>
+#include <cstdlib>
 
 #include "coro/log.hpp"
 #include "coro/net/tcp.hpp"
@@ -20,8 +20,8 @@ tcp_server::tcp_server(const char* addr, int port) noexcept
     {
         if (inet_pton(AF_INET, addr, &m_servaddr.sin_addr.s_addr) < 0)
         {
-            log::info("addr invalid");
-            std::terminate();
+            log::error("addr invalid");
+            std::exit(1);
         }
     }
     else
@@ -31,26 +31,33 @@ tcp_server::tcp_server(const char* addr, int port) noexcept
 
     if (bind(m_listenfd, (sockaddr*)&m_servaddr, sizeof(m_servaddr)) != 0)
     {
-        log::info("server bind error");
-        std::terminate();
+        log::error("server bind error");
+        std::exit(1);
     }
 
     if (listen(m_listenfd, ::coro::config::kBacklog) != 0)
     {
-        log::info("server listen error");
-        std::terminate();
+        log::error("server listen error");
+        std::exit(1);
     }
+
+    m_sqe_flag = 0;
+    m_fixed_fd.assign(m_listenfd, m_sqe_flag);
 }
 
-tcp_accept_awaiter tcp_server::accept(int flags) noexcept
+tcp_accept_awaiter tcp_server::accept(int io_flags) noexcept
 {
-    return tcp_accept_awaiter(m_listenfd, flags);
+    return tcp_accept_awaiter(m_listenfd, io_flags, m_sqe_flag);
 }
 
 tcp_client::tcp_client(const char* addr, int port) noexcept
 {
     m_clientfd = socket(AF_INET, SOCK_STREAM, 0);
-    assert(m_clientfd != -1);
+    if (m_clientfd < 0)
+    {
+        log::error("clientfd init error");
+        std::exit(1);
+    }
 
     utils::set_fd_noblock(m_clientfd);
 
@@ -61,7 +68,8 @@ tcp_client::tcp_client(const char* addr, int port) noexcept
     {
         if (inet_pton(AF_INET, addr, &m_servaddr.sin_addr.s_addr) < 0)
         {
-            assert(false);
+            log::error("address error");
+            std::exit(1);
         }
     }
     else
@@ -70,7 +78,7 @@ tcp_client::tcp_client(const char* addr, int port) noexcept
     }
 }
 
-tcp_connect_awaiter tcp_client::connect(int flags) noexcept
+tcp_connect_awaiter tcp_client::connect() noexcept
 {
     return tcp_connect_awaiter(m_clientfd, (sockaddr*)&m_servaddr, sizeof(m_servaddr));
 }

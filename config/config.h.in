@@ -57,9 +57,22 @@ constexpr size_t kCacheLineSize = 64;
 // io_uring queue length
 constexpr unsigned int kEntryLength = 10240;
 
-// open uring pooling mode
-constexpr bool         kEnablePOOLING = false;
-constexpr unsigned int kSqthreadIdle  = 2000; // millseconds
+// set kEnableFixfd = true can make io_uring optimized by IOSQE_FIXED_FILE
+constexpr bool kEnableFixfd = false;
+
+// Fixed fd buffer length registerd to io_uring,
+// if your application use one fd to launch lots of IO, just increase this para
+constexpr unsigned int kFixFdArraySize = 8;
+
+// WARN: These two modes cannot be enabled simultaneously
+// uncomment below to open uring sqpool mode
+// #define ENABLE_SQPOOL
+
+// uncomment below to open uring iopoll mode,
+// iopoll mode need hardware support and only support fd with O_DIRECT
+// #define ENABLE_IOPOLL
+
+constexpr unsigned int kSqthreadIdle = 2000; // millseconds
 
 // ===================== execute engine configuration =======================
 using ctx_id = uint32_t;
