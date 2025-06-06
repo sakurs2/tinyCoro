@@ -7,7 +7,7 @@
 # tinyCoro C++20 coroutine library with liburing
 
 [![C++20](https://img.shields.io/badge/dialect-C%2B%2B20-blue)](https://en.cppreference.com/w/cpp/20)[![MIT license](https://img.shields.io/github/license/max0x7ba/atomic_queue)](https://github.com/sakurs2/tinyCoro/blob/master/LICENSE)![platform Linux x86_64](https://img.shields.io/badge/platform-Linux%20x86_64--bit-yellow)
-![Version Badge](https://img.shields.io/badge/version-v1%2E1-red)
+![Version Badge](https://img.shields.io/badge/version-v1%2E2-red)
 <!-- support below -->
 <!-- [![Build Status](link/actions/workflows/cmake.yml/badge.svg)](link/actions/workflows/cmake.yml) -->
 <!-- [![CI](https://github.com/jbaldwin/libcoro/actions/workflows/ci-coverage.yml/badge.svg)](https://github.com/jbaldwin/libcoro/actions/workflows/ci-coverage.yml)
@@ -43,26 +43,32 @@ tinyCoroLab实验课程免费！！！快点击[tinyCoroLab](https://github.com/
   - [Usage](#usage)
     - [🤖feature](#feature)
       - [🔥强大的schduler::loop](#强大的schdulerloop)
-      - [🚀可无限添加任务且永不阻塞的执行引擎](#可无限添加任务且永不阻塞的执行引擎)
-    - [timer](#timer)
-    - [event](#event)
-    - [latch](#latch)
-    - [wait\_group](#wait_group)
-    - [mutex](#mutex)
-    - [when\_all](#when_all)
-    - [condition\_variable](#condition_variable)
-    - [channel](#channel)
-    - [tcp\_stdin\_echo\_client](#tcp_stdin_echo_client)
-    - [tcp\_echo\_server](#tcp_echo_server)
-  - [benchmark](#benchmark)
-    - [实验环境](#实验环境)
-      - [wsl2](#wsl2)
-      - [ubuntu](#ubuntu)
-    - [测试结果](#测试结果)
-      - [128b-avg(req/s)](#128b-avgreqs)
-      - [1k-avg(req/s)](#1k-avgreqs)
-      - [16k-avg(req/s)](#16k-avgreqs)
-  - [build](#build)
+      - [🚀简洁高效的并行计算支持](#简洁高效的并行计算支持)
+      - [👷友好的拓展支持](#友好的拓展支持)
+    - [⚙️component](#️component)
+      - [timer](#timer)
+      - [event](#event)
+      - [latch](#latch)
+      - [wait\_group](#wait_group)
+      - [mutex](#mutex)
+      - [when\_all](#when_all)
+      - [condition\_variable](#condition_variable)
+      - [channel](#channel)
+    - [🚨IO example](#io-example)
+      - [tcp\_stdin\_echo\_client](#tcp_stdin_echo_client)
+      - [tcp\_echo\_server](#tcp_echo_server)
+  - [⚙️benchmark](#️benchmark)
+    - [🚧协程切换开销](#协程切换开销)
+    - [🚧http server benchmark](#http-server-benchmark)
+    - [tcp echo server benchmark](#tcp-echo-server-benchmark)
+      - [实验环境](#实验环境)
+        - [wsl2](#wsl2)
+        - [ubuntu](#ubuntu)
+      - [测试结果](#测试结果)
+        - [128b-avg(req/s)](#128b-avgreqs)
+        - [1k-avg(req/s)](#1k-avgreqs)
+        - [16k-avg(req/s)](#16k-avgreqs)
+  - [✈️build](#️build)
     - [构建环境](#构建环境)
     - [构建流程](#构建流程)
     - [cmake options](#cmake-options)
@@ -98,13 +104,31 @@ int main() {
 
 tinyCoro的scheduler可以感知到各个context的运行状态，**`schduler::loop`在所有context全部完成任务后才会向各个context下达停止指令，** 因此该函数一定会在所有任务执行完毕后返回，基于此用户可以在协程内部自由的向scheduler派发新任务，scheduler一定保证完成全部任务！
 
-#### 🚀可无限添加任务且永不阻塞的执行引擎
+#### 🚀简洁高效的并行计算支持
+
+tinyCoro借助自身强大的scheduler可轻易实现简洁易用的并行计算API，代码示例如下：
+
+```C++
+${EXAMPLE_CORO_PARALLEL}
+```
+
+用户在分割完任务后调用并行计算API，scheduler会调动各个context同时计算从而提升效率。
+
+#### 👷友好的拓展支持
+
+tinyCoro的设计遵循开闭原则，对于核心功能例如 **任务派发器** 和 **协程内存分配器** 支持用户自定义且无需修改现有逻辑，仅需要针对基类拓展新的自定义类即可。
+
+<!-- #### 🚀可无限添加任务且永不阻塞的执行引擎
 
 tinyCoro执行引擎所持有的任务队列的容量通过配置文件参数来定义，容量仅限制scheduler启动前所预先接收的任务数量，提交任务超出容量日志会打印错误信息且忽略该任务。
 
-**但在协程任务内部可无限通过`submit_to_scheduler`或者`submit_to_context`派发新任务，且任意工作线程均不会因任务超出容量而阻塞，但超出容量会影响到任务的调度顺序。**
+**但在协程任务内部可无限通过`submit_to_scheduler`或者`submit_to_context`派发新任务，且任意工作线程均不会因任务超出容量而阻塞，但超出容量会影响到任务的调度顺序。** -->
 
-### timer
+### ⚙️component
+
+下列展示了tinyCoro提供的协程同步组件的用法。
+
+#### timer
 
 timer是一个可被协程调用的定时器，通过`co_await timer`协程将会陷入suspend状态，不会阻塞线程运行。
 
@@ -112,7 +136,7 @@ timer是一个可被协程调用的定时器，通过`co_await timer`协程将�
 ${EXAMPLE_CORO_TIMER}
 ```
 
-### event
+#### event
 
 event用于同步协程，只有event处于set状态时对event调用`wait`的协程才可以恢复执行，否则陷入suspend状态。event的模板参数非空情况下还可以用于通过`set`设置值并由`wait`将该值返回。
 
@@ -120,7 +144,7 @@ event用于同步协程，只有event处于set状态时对event调用`wait`的�
 ${EXAMPLE_CORO_EVENT}
 ```
 
-### latch
+#### latch
 
 latch与C++ std::latch功能相同，用于同步协程，只有当其内部计数通过`count_down`降至0时对其调用`wait`的协程才可以恢复运行，否则陷入suspend状态。
 
@@ -128,7 +152,7 @@ latch与C++ std::latch功能相同，用于同步协程，只有当其内部计�
 ${EXAMPLE_CORO_LATCH}
 ```
 
-### wait_group
+#### wait_group
 
 wait_group的设计参考golang中的wait_group，与latch相比在其内部计数可以被增加，因此即使计数通过`done`降至0而又通过`add`增至1，那么此时对其调用`wait`的协程均会陷入suspend状态。
 
@@ -136,7 +160,7 @@ wait_group的设计参考golang中的wait_group，与latch相比在其内部计�
 ${EXAMPLE_CORO_WAIT_GROUP}
 ```
 
-### mutex
+#### mutex
 
 mutex与C++中的mutex功能一致，如果协程试图获取一把处于加锁状态的锁，那么将陷入suspend状态，通过mutex保证协程并发安全性。
 
@@ -144,7 +168,7 @@ mutex与C++中的mutex功能一致，如果协程试图获取一把处于加锁�
 ${EXAMPLE_CORO_MUTEX}
 ```
 
-### when_all
+#### when_all
 
 when_all用于等待其列表中的协程全部执行完毕，在等待时会陷入suspend状态。
 
@@ -152,7 +176,7 @@ when_all用于等待其列表中的协程全部执行完毕，在等待时会陷
 ${EXAMPLE_CORO_WHEN_ALL}
 ```
 
-### condition_variable
+#### condition_variable
 
 condition_variable与C++ std::condition_variable功能一致，并且tinyCoro的condition_variable搭配的是tinyCoro中的mutex，利用condition_variable可以构建协程安全的生产者消费者模型以及同步协程执行的有序性等功能。
 
@@ -160,7 +184,7 @@ condition_variable与C++ std::condition_variable功能一致，并且tinyCoro的
 ${EXAMPLE_CORO_CONDITION_VARIABLE}
 ```
 
-### channel
+#### channel
 
 channel的设计参考golang channel，其本身为容量固定的阻塞式协程安全的多生产者多消费者模型，所有协程因对channel操作而阻塞时会陷入suspend状态。
 
@@ -168,7 +192,11 @@ channel的设计参考golang channel，其本身为容量固定的阻塞式协�
 ${EXAMPLE_CORO_CHANNEL}
 ```
 
-### tcp_stdin_echo_client
+### 🚨IO example
+
+下列展示了使用tinyCoro构建IO应用程序的样例，包括文件IO和网络IO，目前仅支持tcp协议。
+
+#### tcp_stdin_echo_client
 
 由tinyCoro实现的tcp客户端，不仅可以打印tcp服务端发来的消息，用户还能在终端输入文字来向tcp服务端发送消息。
 
@@ -176,7 +204,7 @@ ${EXAMPLE_CORO_CHANNEL}
 ${EXAMPLE_CORO_TCP_STDIN_CLIENT}
 ```
 
-### tcp_echo_server
+#### tcp_echo_server
 
 由tinyCoro实现的tcp服务端。
 
@@ -184,33 +212,43 @@ ${EXAMPLE_CORO_TCP_STDIN_CLIENT}
 ${EXAMPLE_CORO_TCP_ECHO_SERVER}
 ```
 
-## benchmark
+## ⚙️benchmark
+
+### 🚧协程切换开销
+
+待协程内存分配优化后补充。。。
+
+### 🚧http server benchmark
+
+待添加http支持后补充。。。
+
+### tcp echo server benchmark
 
 在liburing 2.10版本下对由tinyCoro实现的tcp_echo_server进行压测，压测工具使用[rust_echo_bench](https://github.com/haraldh/rust_echo_bench)，基线模型选用[rust_echo_server](https://github.com/haraldh/rust_echo_server)。
 
-### 实验环境
+#### 实验环境
 
 benchmark分别会在wsl2和ubuntu物理机中测算。
 
-#### wsl2
+##### wsl2
 
 - **操作系统版本：** Ubuntu 22.04.5 LTS
 - **内核版本：** 5.15.167.4-microsoft-standard-WSL2
 - **系统详细信息：** Linux DESKTOP-59OORP1 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
 - **内存大小：** 7.4Gi
 
-#### ubuntu
+##### ubuntu
 
 - **操作系统版本：** Ubuntu 24.04.2 LTS
 - **内核版本：** 6.8.0-55-generic
 - **系统详细信息：** Linux ubuntu 6.8.0-55-generic #57-Ubuntu SMP PREEMPT_DYNAMIC Wed Feb 12 23:42:21 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux
 - **内存大小：** 31Gi
 
-### 测试结果
+#### 测试结果
 
 针对不同负载大小和不同并发连接数进行压测。
 
-#### 128b-avg(req/s)
+##### 128b-avg(req/s)
 
 |  | tinycoro(wsl2) | tinycoro(ubuntu) | rust_echo_server(wsl2) | rust_echo_server(ubuntu) |  
 |:-------:|:-------:|:-------:|:-------:|:-------:|
@@ -219,7 +257,7 @@ benchmark分别会在wsl2和ubuntu物理机中测算。
 | 50  | 1037350| 621318 | 1051087| 683328|
 | 100 | 1102234|661939  | 1011170|662700 |
 
-#### 1k-avg(req/s)
+##### 1k-avg(req/s)
 
 |  | tinycoro(wsl2) | tinycoro(ubuntu) | rust_echo_server(wsl2) | rust_echo_server(ubuntu) |  
 |:-------:|:-------:|:-------:|:-------:|:-------:|
@@ -228,7 +266,7 @@ benchmark分别会在wsl2和ubuntu物理机中测算。
 | 50  | 986684 | 616243 | 1000662|669019 |
 | 100 | 1034611| 637657 |988743  | 647984|
 
-#### 16k-avg(req/s)
+##### 16k-avg(req/s)
 
 |  | tinycoro(wsl2) | tinycoro(ubuntu) | rust_echo_server(wsl2) | rust_echo_server(ubuntu) |  
 |:-------:|:-------:|:-------:|:-------:|:-------:|
@@ -244,7 +282,7 @@ benchmark分别会在wsl2和ubuntu物理机中测算。
 
 详细的benchmark过程请参考[benchmark/README.MD](https://github.com/sakurs2/tinyCoroLab/blob/master/benchmark/README.MD)。
 
-## build
+## ✈️build
 
 ### 构建环境
 

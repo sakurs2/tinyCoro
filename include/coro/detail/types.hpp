@@ -22,4 +22,10 @@ enum class dispatch_strategy : uint8_t
 // TODO: Add awaiter base support
 using awaiter_ptr = void*;
 
+enum class memory_allocator : uint8_t
+{
+    std_allocator,
+    none
+};
+
 }; // namespace coro::detail

@@ -3,10 +3,10 @@
 #include <coroutine>
 
 #include "coro/context.hpp"
-#include "coro/net/io_info.hpp"
+#include "coro/io/io_info.hpp"
 #include "coro/uring_proxy.hpp"
 
-namespace coro::net::detail
+namespace coro::io::detail
 {
 
 class base_io_awaiter
@@ -30,4 +30,4 @@ protected:
     coro::uring::ursptr m_urs;
 };
 
-}; // namespace coro::net::detail
+}; // namespace coro::io::detail

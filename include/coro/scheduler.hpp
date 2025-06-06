@@ -6,6 +6,9 @@
 #include <vector>
 
 #include "config.h"
+#ifdef ENABLE_MEMORY_ALLOC
+    #include "coro/allocator/memory.hpp"
+#endif
 #include "coro/detail/atomic_helper.hpp"
 #include "coro/dispatcher.hpp"
 
@@ -85,6 +88,11 @@ private:
 
     // When stop_token equals to 0, all context finish all work, so scheduler can stop all context
     stop_token_type m_stop_token;
+
+#ifdef ENABLE_MEMORY_ALLOC
+    // Memory Allocator
+    coro::allocator::memory::memory_allocator<coro::config::kMemoryAllocator> m_mem_alloc;
+#endif
 };
 
 inline void submit_to_scheduler(task<void>&& task) noexcept

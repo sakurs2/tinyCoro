@@ -1,10 +1,10 @@
 #include <cstdlib>
 
+#include "coro/io/net/tcp/tcp.hpp"
 #include "coro/log.hpp"
-#include "coro/net/tcp.hpp"
 #include "coro/utils.hpp"
 
-namespace coro::net
+namespace coro::io::net::tcp
 {
 tcp_server::tcp_server(const char* addr, int port) noexcept
 {
@@ -83,4 +83,4 @@ tcp_connect_awaiter tcp_client::connect() noexcept
     return tcp_connect_awaiter(m_clientfd, (sockaddr*)&m_servaddr, sizeof(m_servaddr));
 }
 
-}; // namespace coro::net
+}; // namespace coro::io::net::tcp

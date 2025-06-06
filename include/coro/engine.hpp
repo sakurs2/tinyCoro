@@ -197,6 +197,9 @@ private:
     size_t m_num_io_wait_submit{0};
     // the number of io running
     size_t m_num_io_running{0};
+
+    // The depth of recursive call
+    size_t m_max_recursive_depth{0};
 };
 
 /**

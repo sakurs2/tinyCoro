@@ -1,0 +1,107 @@
+tests:
+  # 将各项设置为true来开启对应的测试程序
+  pre_command: ["make build-tests","make build-benchtests"]
+
+  lab1:
+    base_tests: 
+      command: ["make test-lab1"]
+      enable: false
+    mem_tests: 
+      command: ["make memtest-lab1"]
+      enable: false
+
+  lab2a:
+    base_tests:
+      command: ["make test-lab2a"]
+      enable: false
+    mem_tests:
+      command: ["make memtest-lab2a"]
+      enable: false
+  
+  lab2b:
+    base_tests:
+      command: ["make test-lab2b"]
+      enable: false
+    mem_tests:
+      command: ["make memtest-lab2b"]
+      enable: false
+
+  # lab3 is special, the ci tests of lab3 will be supported later
+  # lab3:
+  #   base_tests:
+  #     enable: false
+  
+  lab4a:
+    base_tests:
+      command: ["make test-lab4a"]
+      enable: false
+    mem_tests:
+      command: ["make memtest-lab4a"]
+      enable: false
+    bench_tests:
+      command: ["make benchtest-lab4a"]
+      enable: false
+  
+  lab4b:
+    base_tests:
+      command: ["make test-lab4b"]
+      enable: false
+    mem_tests:
+      command: ["make memtest-lab4b"]
+      enable: false
+    bench_tests:
+      command: ["make benchtest-lab4b"]
+      enable: false
+  
+  lab4c:
+    base_tests:
+      command: ["make test-lab4c"]
+      enable: false
+    mem_tests:
+      command: ["make memtest-lab4c"]
+      enable: false
+    bench_tests:
+      command: ["make benchtest-lab4c"]
+      enable: false
+  
+  lab4d:
+    base_tests:
+      command: ["make test-lab4d"]
+      enable: false
+    mem_tests:
+      command: ["make memtest-lab4d"]
+      enable: false
+    bench_tests:
+      command: ["make benchtest-lab4d"]
+      enable: false
+  
+  lab5a:
+    base_tests:
+      command: ["make test-lab5a"]
+      enable: false
+    mem_tests:
+      command: ["make memtest-lab5a"]
+      enable: false
+  
+  lab5b:
+    base_tests:
+      command: ["make test-lab5b"]
+      enable: false
+    mem_tests:
+      command: ["make memtest-lab5b"]
+      enable: false
+    bench_tests:
+      command: ["make benchtest-lab5b"]
+      enable: false
+  
+  lab5c:
+    base_tests:
+      command: ["make test-lab5c"]
+      enable: false
+    mem_tests:
+      command: ["make memtest-lab5c"]
+      enable: false
+    bench_tests:
+      command: ["make benchtest-lab5c"]
+      enable: false
+  

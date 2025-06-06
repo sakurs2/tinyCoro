@@ -8,6 +8,10 @@
 #include "coro/attribute.hpp"
 #include "coro/detail/container.hpp"
 
+#ifdef ENABLE_MEMORY_ALLOC
+    #include "coro/meta_info.hpp"
+#endif
+
 namespace coro
 {
 template<typename return_type = void>
@@ -57,6 +61,18 @@ struct promise_base
 
     inline auto is_detach() -> bool { return m_state == coro_state::detach; }
 
+#ifdef ENABLE_MEMORY_ALLOC
+    void* operator new(std::size_t size)
+    {
+        return ::coro::detail::ginfo.mem_alloc->allocate(size);
+    }
+
+    void operator delete(void* ptr, [[CORO_MAYBE_UNUSED]] std::size_t size)
+    {
+        ::coro::detail::ginfo.mem_alloc->release(ptr);
+    }
+#endif
+
 protected:
     std::coroutine_handle<> m_continuation{nullptr};
     coro_state              m_state{coro_state::normal};
@@ -81,7 +97,9 @@ public:
         promise_id = id;
     }
 #endif // DEBUG
-    promise() noexcept {}
+    promise() noexcept
+    {
+    }
     promise(const promise&)             = delete;
     promise(promise&& other)            = delete;
     promise& operator=(const promise&)  = delete;
@@ -90,7 +108,10 @@ public:
 
     auto get_return_object() noexcept -> task_type;
 
-    auto unhandled_exception() noexcept -> void { this->set_exception(); }
+    auto unhandled_exception() noexcept -> void
+    {
+        this->set_exception();
+    }
 };
 
 template<>
@@ -115,9 +136,14 @@ struct promise<void> : public promise_base
 
     auto get_return_object() noexcept -> task_type;
 
-    constexpr auto return_void() noexcept -> void {}
+    constexpr auto return_void() noexcept -> void
+    {
+    }
 
-    auto unhandled_exception() noexcept -> void { m_exception_ptr = std::current_exception(); }
+    auto unhandled_exception() noexcept -> void
+    {
+        m_exception_ptr = std::current_exception();
+    }
 
     auto result() -> void
     {

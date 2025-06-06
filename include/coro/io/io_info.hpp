@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <functional>
 
-namespace coro::net::detail
+namespace coro::io::detail
 {
 #define CASTPTR(data)  reinterpret_cast<uintptr_t>(data)
 #define CASTDATA(data) static_cast<uintptr_t>(data)
@@ -46,4 +46,4 @@ inline io_info* ptr_to_ioinfo(uintptr_t ptr) noexcept
     return reinterpret_cast<io_info*>(ptr);
 }
 
-}; // namespace coro::net::detail
+}; // namespace coro::io::detail

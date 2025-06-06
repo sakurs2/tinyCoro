@@ -10,10 +10,10 @@
 #include <unistd.h>
 
 #include "config.h"
-#include "coro/net/base_io_type.hpp"
-#include "coro/net/io_awaiter.hpp"
+#include "coro/io/base_io_type.hpp"
+#include "coro/io/io_awaiter.hpp"
 
-namespace coro::net
+namespace coro::io::net::tcp
 {
 
 class tcp_connector
@@ -80,4 +80,4 @@ private:
     sockaddr_in m_servaddr;
 };
 
-}; // namespace coro::net
+}; // namespace coro::io::net::tcp

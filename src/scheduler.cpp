@@ -17,6 +17,12 @@ auto scheduler::init_impl(size_t ctx_cnt) noexcept -> void
     m_dispatcher.init(m_ctx_cnt, &m_ctxs);
     m_ctx_stop_flag = stop_flag_type(m_ctx_cnt, detail::atomic_ref_wrapper<int>{.val = 1});
     m_stop_token    = m_ctx_cnt;
+
+#ifdef ENABLE_MEMORY_ALLOC
+    coro::allocator::memory::mem_alloc_config config;
+    m_mem_alloc.init(config);
+    ginfo.mem_alloc = &m_mem_alloc;
+#endif
 }
 
 auto scheduler::start_impl() noexcept -> void

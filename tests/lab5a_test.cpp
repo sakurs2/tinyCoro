@@ -9,6 +9,10 @@
 
 using namespace coro;
 
+typedef long long ll;
+
+// TODO: Add complicated type tests, eg std::string...
+
 /*************************************************************
  *                       pre-definition                      *
  *************************************************************/
@@ -54,6 +58,53 @@ protected:
 
     mutex            m_mtx;
     std::vector<int> m_vec;
+};
+
+class WhenallRangeVoidTest : public ::testing::TestWithParam<int>
+{
+protected:
+    void SetUp() override { m_cnt = 0; }
+
+    void TearDown() override {}
+
+    std::atomic<int> m_cnt;
+};
+
+class WhenallRangeVoidLockTest : public ::testing::TestWithParam<int>
+{
+protected:
+    void SetUp() override { m_cnt = 0; }
+
+    void TearDown() override {}
+
+    int   m_cnt;
+    mutex m_mtx;
+};
+
+class WhenallRangeIntTest : public ::testing::TestWithParam<int>
+{
+protected:
+    void SetUp() override { m_cnt = 0; }
+
+    void TearDown() override {}
+
+    ll m_cnt;
+};
+
+class WhenallRangeIntLockTest : public ::testing::TestWithParam<int>
+{
+protected:
+    void SetUp() override
+    {
+        m_cnt = 0;
+        m_sum = 0;
+    }
+
+    void TearDown() override {}
+
+    mutex m_mtx;
+    ll    m_cnt;
+    ll    m_sum;
 };
 
 task<> waitee(int& set_id, std::atomic<int>& id)
@@ -152,6 +203,87 @@ task<> whenall_hybrid_mutex(mutex& mtx, std::vector<int>& vec, int i)
     auto guard = co_await mtx.lock_guard();
     co_await when_all(empty_func(), empty_func(), empty_func(), empty_func());
     vec.push_back(i);
+}
+
+task<> count_func(std::atomic<int>& cnt)
+{
+    ++cnt;
+    co_return;
+}
+
+task<> when_all_range_void(int task_num, std::atomic<int>& cnt)
+{
+    std::vector<task<>> vec;
+    for (int i = 0; i < task_num; i++)
+    {
+        vec.emplace_back(count_func(cnt));
+    }
+    co_await when_all(vec);
+    co_return;
+}
+
+task<> count_lock_func(mutex& mtx, int& cnt)
+{
+    auto guard = co_await mtx.lock_guard();
+    ++cnt;
+    co_return;
+}
+
+task<> when_all_range_void_lock(int task_num, mutex& mtx, int& cnt)
+{
+    std::vector<task<>> vec;
+    for (int i = 0; i < task_num; i++)
+    {
+        vec.emplace_back(count_lock_func(mtx, cnt));
+    }
+    co_await when_all(vec);
+    co_return;
+}
+
+task<ll> square(ll i)
+{
+    co_return i* i;
+}
+
+task<> when_all_range_int(int task_num, ll& cnt)
+{
+    std::vector<task<ll>> vec;
+    for (int i = 1; i <= task_num; i++)
+    {
+        vec.emplace_back(square(i));
+    }
+
+    auto result = co_await when_all(vec);
+
+    for (auto num : result)
+    {
+        cnt += num;
+    }
+    co_return;
+}
+
+task<ll> lock_add(mutex& mtx, ll& cnt)
+{
+    auto guard = co_await mtx.lock_guard();
+    ++cnt;
+    co_return cnt;
+}
+
+task<> when_all_range_int_lock(int task_num, mutex& mtx, ll& cnt, ll& sum)
+{
+    std::vector<task<ll>> vec;
+    for (int i = 1; i <= task_num; i++)
+    {
+        vec.emplace_back(lock_add(mtx, cnt));
+    }
+
+    auto result = co_await when_all(vec);
+
+    for (auto num : result)
+    {
+        sum += num;
+    }
+    co_return;
 }
 
 /*************************************************************
@@ -298,3 +430,76 @@ TEST_P(WhenallHybridMutexTest, WhenallHybridMutex)
 }
 
 INSTANTIATE_TEST_SUITE_P(WhenallHybridMutexTests, WhenallHybridMutexTest, ::testing::Values(10, 100, 1000, 10000));
+
+TEST_P(WhenallRangeVoidTest, WhenallRangeVoid)
+{
+    int task_num = GetParam();
+
+    scheduler::init();
+
+    submit_to_scheduler(when_all_range_void(task_num, m_cnt));
+
+    scheduler::loop();
+
+    ASSERT_EQ(task_num, m_cnt.load());
+}
+
+INSTANTIATE_TEST_SUITE_P(WhenallRangeVoidTests, WhenallRangeVoidTest, ::testing::Values(10, 100, 1000, 10000));
+
+TEST_P(WhenallRangeVoidLockTest, WhenallRangeVoidLock)
+{
+    int task_num = GetParam();
+
+    scheduler::init();
+
+    submit_to_scheduler(when_all_range_void_lock(task_num, m_mtx, m_cnt));
+
+    scheduler::loop();
+
+    ASSERT_EQ(task_num, m_cnt);
+}
+
+INSTANTIATE_TEST_SUITE_P(WhenallRangeVoidLockTests, WhenallRangeVoidLockTest, ::testing::Values(10, 100, 1000, 10000));
+
+TEST_P(WhenallRangeIntTest, WhenallRangeInt)
+{
+    int task_num = GetParam();
+
+    ll answer = 0;
+    for (ll i = 1; i <= task_num; i++)
+    {
+        answer += (i * i);
+    }
+
+    scheduler::init();
+
+    submit_to_scheduler(when_all_range_int(task_num, m_cnt));
+
+    scheduler::loop();
+
+    ASSERT_EQ(answer, m_cnt);
+}
+
+INSTANTIATE_TEST_SUITE_P(WhenallRangeIntTests, WhenallRangeIntTest, ::testing::Values(10, 100, 1000, 10000));
+
+TEST_P(WhenallRangeIntLockTest, WhenallRangeIntLock)
+{
+    int task_num = GetParam();
+
+    ll answer = 0;
+    for (ll i = 1; i <= task_num; i++)
+    {
+        answer += i;
+    }
+
+    scheduler::init();
+
+    submit_to_scheduler(when_all_range_int_lock(task_num, m_mtx, m_cnt, m_sum));
+
+    scheduler::loop();
+
+    ASSERT_EQ(task_num, m_cnt);
+    ASSERT_EQ(answer, m_sum);
+}
+
+INSTANTIATE_TEST_SUITE_P(WhenallRangeIntLockTests, WhenallRangeIntLockTest, ::testing::Values(10, 100, 1000, 10000));

@@ -2,10 +2,10 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include "coro/net/io_awaiter.hpp"
+#include "coro/io/io_awaiter.hpp"
 #include "coro/scheduler.hpp"
 
-namespace coro::net
+namespace coro::io
 {
 using ::coro::detail::local_engine;
 using detail::io_type;
@@ -26,6 +26,31 @@ auto noop_awaiter::callback(io_info* data, int res) noexcept -> void
     submit_to_context(data->handle);
 }
 
+stdin_awaiter::stdin_awaiter(char* buf, size_t len, int io_flag, int sqe_flag) noexcept
+{
+    m_info.type = io_type::stdin;
+    m_info.cb   = &stdin_awaiter::callback;
+
+    io_uring_sqe_set_flags(m_urs, sqe_flag);
+    io_uring_prep_read(m_urs, STDIN_FILENO, buf, len, io_flag);
+    io_uring_sqe_set_data(m_urs, &m_info);
+    local_engine().add_io_submit();
+}
+
+auto stdin_awaiter::callback(io_info* data, int res) noexcept -> void
+{
+    data->result = res;
+    submit_to_context(data->handle);
+}
+
+namespace net
+{
+/**
+ * @brief tcp awaiter
+ *
+ */
+namespace tcp
+{
 tcp_accept_awaiter::tcp_accept_awaiter(int listenfd, int io_flag, int sqe_flag) noexcept
 {
     m_info.type = io_type::tcp_accept;
@@ -117,22 +142,7 @@ auto tcp_connect_awaiter::callback(io_info* data, int res) noexcept -> void
     }
     submit_to_context(data->handle);
 }
+}; // namespace tcp
+}; // namespace net
 
-stdin_awaiter::stdin_awaiter(char* buf, size_t len, int io_flag, int sqe_flag) noexcept
-{
-    m_info.type = io_type::stdin;
-    m_info.cb   = &stdin_awaiter::callback;
-
-    io_uring_sqe_set_flags(m_urs, sqe_flag);
-    io_uring_prep_read(m_urs, STDIN_FILENO, buf, len, io_flag);
-    io_uring_sqe_set_data(m_urs, &m_info);
-    local_engine().add_io_submit();
-}
-
-auto stdin_awaiter::callback(io_info* data, int res) noexcept -> void
-{
-    data->result = res;
-    submit_to_context(data->handle);
-}
-
-}; // namespace coro::net
+}; // namespace coro::io

@@ -1,12 +1,22 @@
+/**
+ * @file io_awaiter.hpp
+ * @author Jiahui Wang
+ * @brief This file includes all awaiter of IO operations
+ * @version 1.2
+ * @date 2025-05-27
+ *
+ * @copyright Copyright (c) 2025
+ *
+ */
 #pragma once
 
 #include <netdb.h>
 
-#include "coro/net/base_awaiter.hpp"
+#include "coro/io/base_awaiter.hpp"
 
-namespace coro::net
+namespace coro::io
 {
-using ::coro::net::detail::io_info;
+using ::coro::io::detail::io_info;
 
 class noop_awaiter : public detail::base_io_awaiter
 {
@@ -15,6 +25,22 @@ public:
     static auto callback(io_info* data, int res) noexcept -> void;
 };
 
+class stdin_awaiter : public detail::base_io_awaiter
+{
+public:
+    stdin_awaiter(char* buf, size_t len, int io_flag = 0, int sqe_flag = 0) noexcept;
+
+    static auto callback(io_info* data, int res) noexcept -> void;
+};
+
+namespace net
+{
+/**
+ * @brief tcp awaiter
+ *
+ */
+namespace tcp
+{
 class tcp_accept_awaiter : public detail::base_io_awaiter
 {
 public:
@@ -57,13 +83,7 @@ public:
 
     static auto callback(io_info* data, int res) noexcept -> void;
 };
+}; // namespace tcp
+}; // namespace net
 
-class stdin_awaiter : public detail::base_io_awaiter
-{
-public:
-    stdin_awaiter(char* buf, size_t len, int io_flag = 0, int sqe_flag = 0) noexcept;
-
-    static auto callback(io_info* data, int res) noexcept -> void;
-};
-
-}; // namespace coro::net
+}; // namespace coro::io

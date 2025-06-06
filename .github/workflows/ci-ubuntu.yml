@@ -1,0 +1,85 @@
+# This starter workflow is for a CMake project running on a single platform. There is a different starter workflow if you need cross-platform coverage.
+# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
+name: CMake on ubuntu
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
+    # You can convert this to a matrix build if you need cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v5.6.0
+      with:
+        # Version range or exact version of Python or PyPy to use, using SemVer's version range syntax. Reads from .python-version if unset.
+        python-version: 3.12.10
+        # File containing the Python version to use. Example: .python-version
+        # python-version-file: # optional
+        # Used to specify a package manager for caching in the default directory. Supported values: pip, pipenv, poetry.
+        # cache: # optional
+        # The target architecture (x86, x64, arm64) of the Python or PyPy interpreter.
+        architecture: x64
+        # Set this option if you want the action to check for the latest available version that satisfies the version spec.
+        # check-latest: # optional
+        # The token used to authenticate when fetching Python distributions from https://github.com/actions/python-versions. When running this action on github.com, the default value is sufficient. When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting.
+        # token: # optional, default is ${{ github.server_url == 'https://github.com' && github.token || '' }}
+        # Used to specify the path to dependency files. Supports wildcards or a list of file names for caching multiple dependencies.
+        # cache-dependency-path: # optional
+        # Set this option if you want the action to update environment variables.
+        # update-environment: # optional, default is true
+        # When 'true', a version range passed to 'python-version' input will match prerelease versions if no GA versions are found. Only 'x.y' version range is supported for CPython.
+        # allow-prereleases: # optional
+        # When 'true', use the freethreaded version of Python.
+        # freethreaded: # optional
+
+    - name: Python deps install
+      run: pip install pyyaml
+    
+    - name: Submodule init
+      uses: actions/checkout@v4
+      with:
+          submodules: true
+
+    - name: Install Liburing
+      run: |
+        mkdir temp
+        cd temp 
+        git clone https://github.com/axboe/liburing.git
+        cd liburing
+        ./configure --cc=gcc --cxx=g++
+        make -j$(nproc)
+        make liburing.pc
+        sudo make install
+
+    - name: Configure CMake
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      # Execute tests defined by the CMake configuration.
+      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      run: |
+        cp ${{github.workspace}}/scripts/CITests.py ${{github.workspace}}/build/CITests.py 
+        cp ${{github.workspace}}/scripts/CITests.yml ${{github.workspace}}/build/CITests.yml
+        python CITests.py
+

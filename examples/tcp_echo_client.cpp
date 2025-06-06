@@ -7,7 +7,7 @@ using namespace coro;
 task<> client(const char* addr, int port)
 {
     log::info("client ready to start");
-    auto client = net::tcp_client(addr, port);
+    auto client = io::net::tcp::tcp_client(addr, port);
     int  ret    = 0;
     int  sockfd = 0;
     sockfd      = co_await client.connect();
@@ -15,7 +15,7 @@ task<> client(const char* addr, int port)
     log::info("connect success");
 
     char buf[BUFFLEN] = {0};
-    auto conn         = net::tcp_connector(sockfd);
+    auto conn         = io::net::tcp::tcp_connector(sockfd);
     while ((ret = co_await conn.read(buf, BUFFLEN)) > 0)
     {
         log::info("client {} receive data: {}", sockfd, buf);

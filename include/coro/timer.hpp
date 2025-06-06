@@ -8,7 +8,7 @@
 
 #include "coro/attribute.hpp"
 #include "coro/concepts/common.hpp"
-#include "coro/net/base_awaiter.hpp"
+#include "coro/io/base_awaiter.hpp"
 
 // TODO: Add time bias: timeout_bias_nanosecond
 namespace coro::time
@@ -52,8 +52,12 @@ inline auto get_kernel_timespec(std::chrono::duration<Rep, Period> time_duration
  * @return __kernel_timespec
  */
 template<typename Clock, typename Duration>
-    requires(coro::concepts::in_types<Clock, coro_system_clock, coro_steady_clock, coro_high_resolution_clock>)
-inline auto get_kernel_timespec(std::chrono::time_point<Clock, Duration> time_point) -> __kernel_timespec
+requires(coro::concepts::in_types<
+         Clock,
+         coro_system_clock,
+         coro_steady_clock,
+         coro_high_resolution_clock>) inline auto get_kernel_timespec(std::chrono::time_point<Clock, Duration>
+                                                                          time_point) -> __kernel_timespec
 {
     return get_kernel_timespec(time_point.time_since_epoch());
 }
@@ -61,8 +65,8 @@ inline auto get_kernel_timespec(std::chrono::time_point<Clock, Duration> time_po
 }; // namespace detail
 
 using ::coro::detail::local_engine;
-using coro::net::detail::io_info;
-using coro::net::detail::io_type;
+using coro::io::detail::io_info;
+using coro::io::detail::io_type;
 
 /**
  * @brief A timer can be co_await and support chained call
@@ -78,7 +82,7 @@ using coro::net::detail::io_type;
  */
 class timer
 {
-    struct timer_awaiter : coro::net::detail::base_io_awaiter
+    struct timer_awaiter : coro::io::detail::base_io_awaiter
     {
         timer_awaiter(__kernel_timespec ts, int count, unsigned flags) noexcept
         {
@@ -170,8 +174,12 @@ public:
      * @tparam Duration
      */
     template<typename Clock, typename Duration>
-        requires(coro::concepts::in_types<Clock, coro_system_clock, coro_steady_clock, coro_high_resolution_clock>)
-    auto set_by_timepoint(std::chrono::time_point<Clock, Duration> time_point) -> timer&
+    requires(coro::concepts::in_types<
+             Clock,
+             coro_system_clock,
+             coro_steady_clock,
+             coro_high_resolution_clock>) auto set_by_timepoint(std::chrono::time_point<Clock, Duration> time_point)
+        -> timer&
     {
         m_ts = detail::get_kernel_timespec(time_point);
         return *this;

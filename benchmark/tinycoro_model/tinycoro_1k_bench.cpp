@@ -7,7 +7,7 @@ using namespace coro;
 task<> session(int fd)
 {
     char buf[BUFFLEN] = {0};
-    auto conn         = net::tcp_connector(fd);
+    auto conn         = io::net::tcp::tcp_connector(fd);
     int  ret          = 0;
 
     while ((ret = co_await conn.read(buf, BUFFLEN)) > 0)
@@ -25,7 +25,7 @@ task<> session(int fd)
 
 task<> server(int port)
 {
-    auto server = net::tcp_server(port);
+    auto server = io::net::tcp::tcp_server(port);
     log::info("server start in {}", port);
     int client_fd;
     while ((client_fd = co_await server.accept()) > 0)

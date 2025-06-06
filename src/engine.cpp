@@ -1,6 +1,6 @@
 #include "coro/engine.hpp"
+#include "coro/io/io_info.hpp"
 #include "coro/log.hpp"
-#include "coro/net/io_info.hpp"
 #include "coro/task.hpp"
 
 namespace coro::detail
@@ -9,17 +9,19 @@ using std::memory_order_relaxed;
 
 auto engine::init() noexcept -> void
 {
-    linfo.egn            = this;
-    m_num_io_wait_submit = 0;
-    m_num_io_running     = 0;
+    linfo.egn             = this;
+    m_num_io_wait_submit  = 0;
+    m_num_io_running      = 0;
+    m_max_recursive_depth = 0;
     m_upxy.init(config::kEntryLength);
 }
 
 auto engine::deinit() noexcept -> void
 {
     m_upxy.deinit();
-    m_num_io_wait_submit = 0;
-    m_num_io_running     = 0;
+    m_num_io_wait_submit  = 0;
+    m_num_io_running      = 0;
+    m_max_recursive_depth = 0;
     if (!m_task_queue.was_empty())
     {
         log::warn("task queue isn't empty when engine deinit");
@@ -49,7 +51,14 @@ auto engine::submit_task(coroutine_handle<> handle) noexcept -> void
     {
         // A forced push will cause thread blocked forever,
         // so exec this task directly
+        if (m_max_recursive_depth >= config::kMaxRecursiveDepth)
+        {
+            log::error("the recursive depth exceed limit, so the task will be discard");
+            return;
+        }
+        ++m_max_recursive_depth;
         exec_task(handle);
+        --m_max_recursive_depth;
 
         // if (is_local_engine())
         // {
@@ -88,7 +97,7 @@ auto engine::exec_task(coroutine_handle<> handle) -> void
 
 auto engine::handle_cqe_entry(urcptr cqe) noexcept -> void
 {
-    auto data = reinterpret_cast<net::detail::io_info*>(io_uring_cqe_get_data(cqe));
+    auto data = reinterpret_cast<io::detail::io_info*>(io_uring_cqe_get_data(cqe));
     data->cb(data, cqe->res);
 }
 

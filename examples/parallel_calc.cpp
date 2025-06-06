@@ -1,34 +1,39 @@
-#include <vector>
-
 #include "coro/coro.hpp"
 
 using namespace coro;
 
-#define TASK_NUM 5
-
-std::vector<int> vec{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-
-task<> calc(int id, int lef, int rig, std::vector<int>& v)
+task<int> square(int i)
 {
-    int sum = 0;
-    for (int i = lef; i < rig; i++)
+    co_return i* i;
+}
+
+task<> parallel_compute()
+{
+    std::vector<task<int>> vec;
+    for (int i = 1; i <= 5; i++)
     {
-        sum += v[i];
+        vec.push_back(square(i));
     }
-    log::info("task {} calc result: {}", id, sum);
-    co_return;
+    auto answer = co_await parallel::parallel_func(
+        vec,
+        parallel::make_parallel_reduce_func(
+            [](std::vector<int>& vec)
+            {
+                int sum = 0;
+                for (auto it : vec)
+                {
+                    sum += it;
+                }
+                return sum;
+            }));
+    log::info("final answer: {}", answer);
 }
 
 int main(int argc, char const* argv[])
 {
     /* code */
     scheduler::init();
-
-    for (int i = 0; i < TASK_NUM; i++)
-    {
-        submit_to_scheduler(calc(i, i * 3, (i + 1) * 3, vec));
-    }
-
+    submit_to_scheduler(parallel_compute());
     scheduler::loop();
     return 0;
 }

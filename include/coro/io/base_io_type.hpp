@@ -1,6 +1,6 @@
 #include "coro/engine.hpp"
 
-namespace coro::net::detail
+namespace coro::io::detail
 {
 
 // If you need to use the feature "IOSQE_FIXED_FILE", just include fixed_fds as member varaible,
@@ -39,4 +39,4 @@ struct fixed_fds
 
     ::coro::uring::uring_fds_item item;
 };
-}; // namespace coro::net::detail
+}; // namespace coro::io::detail

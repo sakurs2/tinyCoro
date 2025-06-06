@@ -20,6 +20,8 @@
 
 #include "stddef.h"
 #include "stdint.h"
+#include "time.h"
+#include <limits>
 
 #include "coro/detail/types.hpp"
 
@@ -52,6 +54,13 @@ constexpr int64_t kFlushDura = 3; // seconds
 // =========================== cpu configuration ============================
 // use alignas(config::kCacheLineSize) to reduce cache invalidation
 constexpr size_t kCacheLineSize = 64;
+
+// ====================== memory allocator configuration ====================
+// only ENABLE_MEMORY_ALLOC is defined, the memory allocator strategy will be enabled
+#define ENABLE_MEMORY_ALLOC
+
+// memory allocator is used to allocate memory for coroutine
+constexpr coro::detail::memory_allocator kMemoryAllocator = coro::detail::memory_allocator::std_allocator;
 
 // ========================== uring configuration ===========================
 // io_uring queue length
@@ -86,6 +95,11 @@ constexpr size_t kQueCap = 16384;
 // scheduler dispacher strategy
 constexpr coro::detail::dispatch_strategy kDispatchStrategy = coro::detail::dispatch_strategy::round_robin;
 
+// If one thread submit task to another thread or itself which owns a full task queue,
+// the submit func will be blocked, so execuate this task directly instead of submitting task,
+// but this will cause recursive call, so use this parameter to constrain the recursive depth
+constexpr size_t kMaxRecursiveDepth = 4096;
+
 /**
  * @warning kLongRunMode is deprecated
  *
@@ -104,9 +118,39 @@ constexpr coro::detail::dispatch_strategy kDispatchStrategy = coro::detail::disp
  */
 inline bool kLongRunMode = true;
 
-// =========================== net configuration ============================
+// =========================== tcp configuration ============================
 constexpr int kDefaultPort = 8000;
 constexpr int kBacklog     = 5;
+
+// ========================== http configuration ============================
+
+// server config
+// constexpr size_t kHttpRedirectMaxCount          = 20;
+// constexpr size_t kHttpKeepAliveMaxCount         = 100;
+// constexpr time_t kHttpKeepAliveTimeoutSecond    = 5;
+// constexpr time_t kHttpServerReadTimeoutSecond   = 5;
+// constexpr time_t kHttpServerReadTimeoutUSecond  = 0;
+// constexpr time_t kHttpServerWriteTimeoutSecond  = 5;
+// constexpr time_t kHttpServerWriteTimeoutUSecond = 0;
+// constexpr time_t kHttpIdleIntervalSecond        = 0;
+// constexpr time_t kHttpIdleIntervalUSecond       = 0;
+// constexpr time_t kHttpPayloadMaxLength          = ((std::numeric_limits<size_t>::max)());
+
+// // client config
+// constexpr time_t kHttpConnectionTimeoutSecond   = 300;
+// constexpr time_t kHttpConnectionTimeoutUSecond  = 0;
+// constexpr time_t kHttpClientReadTimeoutSecond   = 300;
+// constexpr time_t kHttpClientReadTimeoutUSecond  = 0;
+// constexpr time_t kHttpClientWriteTimeoutSecond  = 5;
+// constexpr time_t kHttpClientWriteTimeoutUSecond = 0;
+// constexpr time_t kHttpClientMaxTimeoutMSecond   = 0;
+
+// constexpr size_t kHttpHeaderMaxLength     = 8192;
+// constexpr size_t kHttpRequestUriMaxLength = 8192;
+// constexpr bool   kHttpTcpNodeLay          = false;
+// constexpr bool   kHttpIpv6Only            = false;
+// constexpr size_t kHttpRangeMaxCount       = 1024;
+// constexpr int    kHttpListenBacklog       = 5;
 
 // ========================== test configuration ============================
 /**

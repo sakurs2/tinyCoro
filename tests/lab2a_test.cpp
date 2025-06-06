@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "coro/engine.hpp"
-#include "coro/net/io_info.hpp"
+#include "coro/io/io_info.hpp"
 #include "coro/task.hpp"
 #include "coro/utils.hpp"
 #include "gtest/gtest.h"
@@ -15,9 +15,9 @@ using namespace coro;
  *                       pre-definition                      *
  *************************************************************/
 
-using ::coro::net::detail::cb_type;
-using ::coro::net::detail::io_info;
-using ::coro::net::detail::io_type;
+using ::coro::io::detail::cb_type;
+using ::coro::io::detail::io_info;
+using ::coro::io::detail::io_type;
 
 int main(int argc, char** argv)
 {

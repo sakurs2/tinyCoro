@@ -2,7 +2,7 @@
  * @file when_all.hpp
  * @author JiahuiWang
  * @brief lab5a
- * @version 1.1
+ * @version 1.2
  * @date 2025-03-24
  *
  * @copyright Copyright (c) 2025
@@ -12,6 +12,7 @@
 
 #include <array>
 #include <tuple>
+#include <vector>
 
 #include "coro/attribute.hpp"
 #include "coro/comp/latch.hpp"
@@ -25,6 +26,9 @@ namespace detail
 
 template<typename T>
 class when_all_ready_awaitable;
+
+template<typename task_container_type>
+class when_all_ready_range_awaitable;
 
 template<>
 class when_all_ready_awaitable<std::tuple<>>
@@ -61,9 +65,27 @@ protected:
     std::tuple<task_types...> m_tasks;
 };
 
+template<typename task_container_type>
+class when_all_ready_awaitable_range_base
+{
+public:
+    explicit when_all_ready_awaitable_range_base(task_container_type&& tasks) noexcept
+        : m_latch(std::ranges::size(tasks)),
+          m_tasks(std::move(tasks))
+    {
+    }
+    // explicit when_all_ready_awaitable_range_base(task_container_type& tasks) noexcept : m_tasks(std::move(tasks)) {}
+
+    CORO_NO_COPY_MOVE(when_all_ready_awaitable_range_base);
+
+protected:
+    latch               m_latch;
+    task_container_type m_tasks;
+};
+
 template<typename... task_types>
-    requires(concepts::all_void_type<typename task_types::rt...>)
-class when_all_ready_awaitable<std::tuple<task_types...>> : public when_all_ready_awaitable_base<task_types...>
+requires(concepts::all_void_type<typename task_types::rt...>) class when_all_ready_awaitable<std::tuple<task_types...>>
+    : public when_all_ready_awaitable_base<task_types...>
 {
 public:
     using when_all_ready_awaitable_base<task_types...>::when_all_ready_awaitable_base;
@@ -77,10 +99,9 @@ public:
 
 // https://www.open-std.org/jtc1/sc22/wg21/docs/cwg_active.html#1430
 template<typename task_type, typename... task_types>
-    requires(
-        concepts::all_noref_pod<typename task_type::rt, typename task_types::rt...> &&
-        concepts::all_same_type<typename task_type::rt, typename task_types::rt...>)
-class when_all_ready_awaitable<std::tuple<task_type, task_types...>>
+requires(concepts::all_noref_pod<typename task_type::rt, typename task_types::rt...>&& concepts::all_same_type<
+         typename task_type::rt,
+         typename task_types::rt...>) class when_all_ready_awaitable<std::tuple<task_type, task_types...>>
     : public when_all_ready_awaitable_base<task_type, task_types...>
 {
 public:
@@ -122,6 +143,71 @@ public:
 
 private:
     storage_type m_data;
+};
+
+template<typename task_container_type>
+// requires(std::is_void_v<typename std::ranges::range_value_t<
+//              task_container_type>::rt>)
+class when_all_ready_range_awaitable : public when_all_ready_awaitable_range_base<task_container_type>
+{
+public:
+    using return_type  = typename std::ranges::range_value_t<task_container_type>::rt;
+    using storage_type = std::vector<return_type>;
+    using when_all_ready_awaitable_range_base<task_container_type>::when_all_ready_awaitable_range_base;
+
+    auto operator co_await() noexcept
+    {
+        struct awaiter
+        {
+            auto await_ready() noexcept -> bool { return m_awaiter.await_ready(); }
+
+            auto await_suspend(std::coroutine_handle<> awaiting_coroutine) noexcept -> bool
+            {
+                return m_awaiter.await_suspend(awaiting_coroutine);
+            }
+
+            auto await_resume() noexcept -> decltype(auto)
+            {
+                m_awaiter.await_resume();
+                return std::move(m_data);
+            }
+
+            latch::event_t::awaiter m_awaiter;
+            storage_type&           m_data;
+        };
+
+        storage_type data(std::ranges::size(this->m_tasks));
+        m_data = data;
+
+        size_t p{0};
+        for (auto& tasks : this->m_tasks)
+        {
+            tasks.start(this->m_latch, &(this->m_data[p++]));
+        }
+
+        return awaiter{this->m_latch.wait(), m_data};
+    }
+
+private:
+    storage_type m_data;
+};
+
+template<typename task_container_type>
+requires(std::is_void_v<typename std::ranges::range_value_t<
+             task_container_type>::rt>) class when_all_ready_range_awaitable<task_container_type>
+    : public when_all_ready_awaitable_range_base<task_container_type>
+{
+public:
+    using when_all_ready_awaitable_range_base<task_container_type>::when_all_ready_awaitable_range_base;
+    auto operator co_await() noexcept -> latch::event_t::awaiter
+    {
+        for (auto& tasks : this->m_tasks)
+        {
+            tasks.start(this->m_latch);
+        }
+        // std::apply([this](auto&&... tasks) { ((tasks.start(this->m_latch)), ...); }, this->m_tasks);
+        return this->m_latch.wait();
+    }
 };
 
 template<typename T>
@@ -257,6 +343,31 @@ template<concepts::awaitable... awaitables_type>
     return detail::when_all_ready_awaitable<std::tuple<detail::when_all_task<
         std::remove_reference_t<typename concepts::awaitable_traits<awaitables_type>::awaiter_return_type>>...>>(
         std::make_tuple(detail::make_when_all_task(std::move(awaitables))...));
+}
+
+template<
+    std::ranges::range  range_type,
+    concepts::awaitable awaitable_type = std::ranges::range_value_t<range_type>,
+    typename return_type               = typename concepts::awaitable_traits<awaitable_type>::awaiter_return_type>
+[[CORO_TEST_USED(lab5a)]] [[CORO_AWAIT_HINT]] static auto when_all(range_type&& awaitables)
+{
+    using task_container_type = std::vector<detail::when_all_task<std::remove_reference_t<return_type>>>;
+    task_container_type output_tasks;
+
+    // If the size is known in constant time reserve the output tasks size.
+    if constexpr (std::ranges::sized_range<range_type>)
+    {
+        output_tasks.reserve(std::size(awaitables));
+    }
+
+    // Wrap each task into a when_all_task.
+    for (auto&& a : awaitables)
+    {
+        output_tasks.emplace_back(detail::make_when_all_task(std::move(a)));
+    }
+
+    // Return the single awaitable that drives all the user's tasks.
+    return detail::when_all_ready_range_awaitable<task_container_type>(std::move(output_tasks));
 }
 
 namespace detail

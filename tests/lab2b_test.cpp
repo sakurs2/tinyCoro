@@ -3,7 +3,7 @@
 #include <thread>
 #include <vector>
 
-#include "coro/net/io_awaiter.hpp"
+#include "coro/io/io_awaiter.hpp"
 #include "coro/scheduler.hpp"
 #include "gtest/gtest.h"
 
@@ -13,7 +13,7 @@ using namespace coro;
  *                       pre-definition                      *
  *************************************************************/
 
-using ::coro::net::noop_awaiter;
+using ::coro::io::noop_awaiter;
 
 int main(int argc, char** argv)
 {

@@ -2,6 +2,9 @@
 
 #include <atomic>
 
+#ifdef ENABLE_MEMORY_ALLOC
+    #include "coro/allocator/memory.hpp"
+#endif
 #include "coro/attribute.hpp"
 
 namespace coro
@@ -34,7 +37,10 @@ struct global_info
 {
     atomic<ctx_id>   context_id{0};
     atomic<uint32_t> engine_id{0};
-    // TODO: Add more global var
+// TODO: Add more global var
+#ifdef ENABLE_MEMORY_ALLOC
+    coro::allocator::memory::memory_allocator<config::kMemoryAllocator>* mem_alloc;
+#endif
 };
 
 inline thread_local local_info linfo;
@@ -45,6 +51,9 @@ inline auto init_meta_info() noexcept -> void
 {
     ginfo.context_id = 0;
     ginfo.engine_id  = 0;
+#ifdef ENABLE_MEMORY_ALLOC
+    ginfo.mem_alloc = nullptr;
+#endif
 }
 
 // This function is used to distinguish whether you are currently in a worker thread
