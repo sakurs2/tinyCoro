@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 project(tinycoro
-    VERSION 1.1
+    VERSION 1.2
     LANGUAGES CXX
     DESCRIPTION "a high performance C++20 coroutine library combined with io_uring"
 )
